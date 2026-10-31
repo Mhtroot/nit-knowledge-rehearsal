@@ -1,4 +1,4 @@
-import { ConflictException, Injectable, InternalServerErrorException } from "@nestjs/common";
+import { ConflictException, Injectable, InternalServerErrorException, NotFoundException } from "@nestjs/common";
 import { AdminRepository } from "./admin.repository";
 import { Prisma } from "src/generated/prisma/client";
 import { Admin } from "src/generated/prisma/browser";
@@ -25,5 +25,17 @@ export class AdminService {
     }
 
     return newAdmin;
+  }
+
+  async getByUsername(username: string): Promise<Admin> {
+    const admin = await this.repo.getByUsername(username);
+    if (admin === null) {
+      throw new NotFoundException({
+        code: 'ADMIN_NOT_FOUND',
+        message: 'admin not found',
+      });
+    }
+
+    return admin;
   }
 }
