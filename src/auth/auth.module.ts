@@ -17,6 +17,7 @@ import { AdminAuthController } from './controllers/admin-auth.controller';
     }),
   ],
   providers: [UserAuthRepository, UserServices, AuthGuard, AdminRepository, AdminService],
+  exports: [UserServices],
   controllers: [AuthController, AdminAuthController],
 })
 export class AuthModule {}
