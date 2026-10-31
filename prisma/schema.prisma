@@ -7,3 +7,16 @@ generator client {
 datasource db {
   provider = "mysql"
 }
+
+model Admin {
+  id    String @id @default(uuid())
+  username  String
+  password  String
+}
+
+model User {
+  id                Int     @id @default(autoincrement())
+  ssn               String     @unique
+  fullName          String
+  phone             String  @unique
+}

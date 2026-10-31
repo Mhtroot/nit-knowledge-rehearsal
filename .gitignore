@@ -61,3 +61,5 @@ uploads/
 
 # Lockfile
 package-lock.json
+
+prisma/migrations

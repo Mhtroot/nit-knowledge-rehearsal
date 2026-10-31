@@ -1,10 +1,22 @@
 import { Module } from '@nestjs/common';
-import { IamJwtService } from './iam-jwt.service';
-import { AdminGuard } from './guards/admin.guard';
-import { UserGuard } from './guards/user.guard';
+import { JwtModule } from '@nestjs/jwt';
+import { UserAuthRepository } from './services/user-auth.repository';
+import { UserServices } from './services/user.service';
+import { AuthGuard } from './guards/user.guard';
+import { AuthController } from './controllers/auth.controller';
+import { AdminRepository } from './services/admin.repository';
+import { AdminService } from './services/admin.service';
+import { AdminAuthController } from './controllers/admin-auth.controller';
 
 @Module({
-  providers: [IamJwtService, AdminGuard, UserGuard],
-  exports: [IamJwtService, AdminGuard, UserGuard],
+  imports: [
+    JwtModule.register({
+      global: true,
+      secret: process.env.JWT_SECRET || 'secret',
+      signOptions: { expiresIn: '1d' },
+    }),
+  ],
+  providers: [UserAuthRepository, UserServices, AuthGuard, AdminRepository, AdminService],
+  controllers: [AuthController, AdminAuthController],
 })
 export class AuthModule {}

@@ -43,7 +43,7 @@ This project is a scalable backend service built on the **NestJS 11** framework 
                    v                                       v
          +--------------------+                 +--------------------+
          |     AuthModule     |                 |  DbContextModule   |
-         | (IAM JWT, Guards)  |                 | (PrismaClient, DB) |
+         | (JWT, Passport)    |                 | (PrismaClient, DB) |
          +--------------------+                 +--------------------+
                    |                                       |
                    v                                       v
@@ -86,13 +86,14 @@ This project is a scalable backend service built on the **NestJS 11** framework 
      ```
 
 4. **Authentication & Authorization Layer (`src/auth/`)**:
-   - **Stateless IAM Integration**: Uses external Identity and Access Management (IAM) service via RS256 asymmetric JWT verification.
-   - **Pure JWT helpers (`src/auth/iam-jwt.ts`)**: stateless RS256 verification using native Node.js `crypto.verify` (SHA-256), role/type validation, bearer extraction.
-   - **`IamJwtService` (`src/auth/iam-jwt.service.ts`)**: injectable provider that fetches public keys from `${IAM_URL}/${role}/public-key` (`admin` or `user`), caches them in memory (empty responses are never cached), and exposes `authenticate(authHeader, role)` which throws `UnauthorizedException` on failure.
-   - **Guards (`src/auth/guards/`)**: thin DI-based guards delegating to `IamJwtService`.
+   - **Standard JWT & Passport Integration**: Uses `@nestjs/jwt` and `@nestjs/passport` with `passport-jwt` strategy, verified locally using `JWT_SECRET` (symmetric HS256).
+   - **`JwtStrategy` (`src/auth/jwt.strategy.ts`)**: Passport JWT strategy that extracts Bearer tokens, verifies them against `JWT_SECRET`, and validates the token payload (`JwtPayload`).
+   - **`AuthService` (`src/auth/auth.service.ts`)**: Helper service providing `signToken(payload)` and `verifyToken(token)` via `@nestjs/jwt`.
+   - **Guards (`src/auth/guards/`)**:
+     - `JwtAuthGuard`: generic JWT guard (`AuthGuard('jwt')`) allowing any valid authenticated user.
      - `AdminGuard`: requires `role === 'admin'` and `type === 'access'`, attaches `req.user` (`JwtPayload`) to `AuthedRequest` (`src/auth/authed-request.ts`).
      - `UserGuard`: requires `role === 'user'` and `type === 'access'`, attaches `req.user`.
-   - **`AuthModule`** exports `IamJwtService`, `AdminGuard` and `UserGuard`; feature modules must import `AuthModule` to use the guards.
+   - **`AuthModule`** exports `AuthService`, `JwtModule`, `PassportModule`, `JwtStrategy`, `AdminGuard`, `UserGuard`, and `JwtAuthGuard`. Feature modules import `AuthModule` to use the guards and auth services.
    - **`AuthTestModule` (`src/auth-test/`)**: sample `admin/me` and `user/me` routes for verifying auth wiring; remove it from `AppModule` for production if not needed.
    - **Swagger Integration**: Protected controller routes must be annotated with `@ApiBearerAuth()` and `@UseGuards(AdminGuard | UserGuard)`.
 
@@ -113,13 +114,13 @@ This project is a scalable backend service built on the **NestJS 11** framework 
 │   ├── app.module.ts         # Root module
 │   ├── app.controller.ts     # Health / root endpoints
 │   ├── app.service.ts        # Root business logic
-│   ├── auth/                 # Central authentication & IAM verification
+│   ├── auth/                 # Central authentication & JWT verification
 │   │   ├── auth.module.ts
+│   │   ├── auth.service.ts   # Token signing and verification helper
 │   │   ├── authed-request.ts # AuthedRequest type
-│   │   ├── guards/           # AdminGuard, UserGuard (+ specs)
-│   │   ├── iam-jwt.ts        # Pure RS256 JWT verify helpers
-│   │   ├── iam-jwt.service.ts# IAM public key fetcher/cache + authenticate()
-│   │   └── iam-jwt.spec.ts   # Auth unit tests
+│   │   ├── jwt.interface.ts  # JwtPayload and Role definitions
+│   │   ├── jwt.strategy.ts   # Passport JWT Strategy (HS256 via JWT_SECRET)
+│   │   └── guards/           # AdminGuard, UserGuard, JwtAuthGuard (+ specs)
 │   ├── auth-test/            # Sample protected routes (module + controller)
 │   ├── db-context/           # Database access module
 │   │   ├── db-context.module.ts  # Global module
@@ -242,5 +243,5 @@ npx prisma studio                         # Launch visual database GUI
 ## 🔒 Security & Guardrails
 
 - **Never bypass `ValidationPipe`:** The application relies on `{ whitelist: true, forbidNonWhitelisted: true }` to strip unknown fields and prevent mass assignment attacks.
-- **Do NOT modify IAM authentication algorithms** (`src/auth/iam-jwt.ts`): All service tokens are verified against the central IAM public key endpoint using RS256. Do not switch to local symmetric secrets without authorization.
+- **Authentication**: All service tokens are verified locally using symmetric `JWT_SECRET` (HS256) via Passport and `@nestjs/jwt` (switched from IAM RS256 by user authorization).
 - **Never expose sensitive fields:** Exclude password hashes, internal IDs, or raw credentials in responses.
