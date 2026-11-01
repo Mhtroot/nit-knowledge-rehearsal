@@ -2,9 +2,9 @@
 <html lang="fa" dir="rtl">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
   <meta name="description" content="رویداد شب علم دانشگاه صنعتی نوشیروانی بابل - ۱۲ آذرماه ۱۴۰۵. پل ارتباطی میان دانشگاه، صنعت و جامعه برای کشف، تجربه و اندیشه.">
-  <meta name="theme-color" content="#07090e">
+  <meta name="theme-color" content="#06080d">
   <title>شب علم | دانشگاه صنعتی نوشیروانی بابل — Science Night</title>
 
   <!-- Google Fonts: Vazirmatn -->
@@ -12,1301 +12,86 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Vazirmatn:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
 
-  <style>
-    /* =========================================
-       Design System & Variables
-       ========================================= */
-    :root {
-      --font-family: 'Vazirmatn', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
-      --bg-base: #07090e;
-      --bg-surface: #0e1526;
-      --bg-card: rgba(16, 24, 44, 0.75);
-      --bg-card-hover: rgba(24, 34, 61, 0.85);
-      --bg-glass: rgba(7, 9, 14, 0.85);
-      
-      --cyan-400: #38bdf8;
-      --cyan-500: #0ea5e9;
-      --violet-400: #a78bfa;
-      --violet-500: #8b5cf6;
-      --gold-400: #fbbf24;
-      --gold-500: #f59e0b;
-      
-      --text-main: #f8fafc;
-      --text-muted: #94a3b8;
-      --text-dim: #64748b;
-      
-      --border-subtle: rgba(255, 255, 255, 0.08);
-      --border-accent: rgba(56, 189, 248, 0.28);
-      --border-focus: #38bdf8;
-      
-      --danger: #ef4444;
-      --danger-bg: rgba(239, 68, 68, 0.12);
-      --success: #10b981;
-      --success-bg: rgba(16, 185, 129, 0.12);
-      
-      --shadow-sm: 0 2px 8px rgba(0, 0, 0, 0.4);
-      --shadow-lg: 0 12px 36px rgba(0, 0, 0, 0.6);
-      --shadow-glow: 0 0 30px rgba(56, 189, 248, 0.22);
-      
-      --radius-sm: 8px;
-      --radius-md: 14px;
-      --radius-lg: 22px;
-      --radius-full: 9999px;
-      
-      --max-width: 1180px;
-      --transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
-    }
-
-    /* =========================================
-       Reset & Base Styles
-       ========================================= */
-    *, *::before, *::after {
-      box-sizing: border-box;
-      margin: 0;
-      padding: 0;
-    }
-
-    html {
-      scroll-behavior: smooth;
-      background-color: var(--bg-base);
-      color: var(--text-main);
-      font-family: var(--font-family);
-      line-height: 1.8;
-      -webkit-font-smoothing: antialiased;
-    }
-
-    body {
-      min-height: 100vh;
-      display: flex;
-      flex-direction: column;
-      position: relative;
-      overflow-x: hidden;
-      background: 
-        radial-gradient(circle at 50% 0%, rgba(56, 189, 248, 0.12) 0%, transparent 45%),
-        radial-gradient(circle at 85% 25%, rgba(139, 92, 246, 0.09) 0%, transparent 40%),
-        radial-gradient(circle at 15% 65%, rgba(56, 189, 248, 0.06) 0%, transparent 40%),
-        var(--bg-base);
-    }
-
-    a {
-      color: inherit;
-      text-decoration: none;
-      transition: var(--transition);
-    }
-
-    button, input {
-      font-family: inherit;
-      font-size: 1rem;
-    }
-
-    button {
-      cursor: pointer;
-      border: none;
-      background: none;
-      transition: var(--transition);
-    }
-
-    :focus-visible {
-      outline: 2px solid var(--cyan-400);
-      outline-offset: 3px;
-    }
-
-    .container {
-      width: 100%;
-      max-width: var(--max-width);
-      margin-left: auto;
-      margin-right: auto;
-      padding-left: 1.5rem;
-      padding-right: 1.5rem;
-    }
-
-    /* Cosmic Background Accents */
-    .cosmic-orb {
-      position: absolute;
-      border-radius: 50%;
-      filter: blur(90px);
-      pointer-events: none;
-      opacity: 0.28;
-      z-index: 0;
-    }
-
-    .cosmic-orb-1 {
-      width: 500px;
-      height: 500px;
-      background: radial-gradient(circle, #38bdf8 0%, transparent 70%);
-      top: -120px;
-      right: -80px;
-    }
-
-    .cosmic-orb-2 {
-      width: 450px;
-      height: 450px;
-      background: radial-gradient(circle, #8b5cf6 0%, transparent 70%);
-      top: 600px;
-      left: -100px;
-    }
-
-    /* Scroll Animation */
-    .reveal {
-      opacity: 0;
-      transform: translateY(28px);
-      transition: opacity 0.7s cubic-bezier(0.16, 1, 0.3, 1), transform 0.7s cubic-bezier(0.16, 1, 0.3, 1);
-    }
-
-    .reveal.revealed {
-      opacity: 1;
-      transform: translateY(0);
-    }
-
-    /* =========================================
-       Navbar
-       ========================================= */
-    .navbar {
-      position: sticky;
-      top: 0;
-      z-index: 100;
-      width: 100%;
-      background-color: rgba(7, 9, 14, 0.75);
-      backdrop-filter: blur(14px);
-      -webkit-backdrop-filter: blur(14px);
-      border-bottom: 1px solid var(--border-subtle);
-      transition: background-color 0.3s ease, border-color 0.3s ease, box-shadow 0.3s ease;
-    }
-
-    .navbar.nav-scrolled {
-      background-color: rgba(7, 9, 14, 0.94);
-      border-bottom: 1px solid rgba(56, 189, 248, 0.18);
-      box-shadow: 0 4px 24px rgba(0, 0, 0, 0.5);
-    }
-
-    .navbar-inner {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      height: 72px;
-      gap: 1rem;
-    }
-
-    .brand {
-      display: flex;
-      align-items: center;
-      gap: 0.75rem;
-      font-weight: 700;
-      font-size: 1.05rem;
-      color: var(--text-main);
-      white-space: nowrap;
-    }
-
-    .brand-logo {
-      width: 36px;
-      height: 36px;
-      display: grid;
-      place-items: center;
-      border-radius: var(--radius-sm);
-      background: linear-gradient(135deg, rgba(56, 189, 248, 0.2), rgba(139, 92, 246, 0.2));
-      border: 1px solid var(--border-accent);
-      color: var(--cyan-400);
-      flex-shrink: 0;
-    }
-
-    .brand-name {
-      display: flex;
-      flex-direction: column;
-      line-height: 1.3;
-    }
-
-    .brand-title {
-      font-size: 1.05rem;
-      font-weight: 800;
-      background: linear-gradient(120deg, #ffffff, var(--cyan-400));
-      -webkit-background-clip: text;
-      -webkit-text-fill-color: transparent;
-    }
-
-    .brand-sub {
-      font-size: 0.75rem;
-      color: var(--text-muted);
-      font-weight: 400;
-    }
-
-    .nav-content {
-      display: flex;
-      align-items: center;
-      gap: 2rem;
-    }
-
-    .nav-links {
-      display: flex;
-      align-items: center;
-      gap: 1.5rem;
-      list-style: none;
-    }
-
-    .nav-link {
-      font-size: 0.92rem;
-      font-weight: 500;
-      color: var(--text-muted);
-      padding: 0.4rem 0.6rem;
-      border-radius: var(--radius-sm);
-    }
-
-    .nav-link:hover {
-      color: var(--cyan-400);
-    }
-
-    .nav-auth {
-      display: flex;
-      align-items: center;
-      gap: 0.75rem;
-    }
-
-    .btn-nav-primary {
-      padding: 0.5rem 1.15rem;
-      font-size: 0.88rem;
-      font-weight: 600;
-      color: #07090e;
-      background: linear-gradient(135deg, var(--cyan-400), #67e8f9);
-      border-radius: var(--radius-full);
-      box-shadow: 0 0 16px rgba(56, 189, 248, 0.35);
-    }
-
-    .btn-nav-primary:hover {
-      transform: translateY(-1px);
-      box-shadow: 0 0 22px rgba(56, 189, 248, 0.55);
-    }
-
-    .btn-nav-ghost {
-      padding: 0.5rem 1rem;
-      font-size: 0.88rem;
-      font-weight: 500;
-      color: var(--text-main);
-      background: rgba(255, 255, 255, 0.05);
-      border: 1px solid var(--border-subtle);
-      border-radius: var(--radius-full);
-    }
-
-    .btn-nav-ghost:hover {
-      background: rgba(255, 255, 255, 0.1);
-      border-color: rgba(255, 255, 255, 0.2);
-      color: #ffffff;
-    }
-
-    .btn-logout {
-      padding: 0.45rem 0.9rem;
-      font-size: 0.84rem;
-      color: #f87171;
-      border: 1px solid rgba(248, 113, 113, 0.3);
-      background: rgba(239, 68, 68, 0.08);
-      border-radius: var(--radius-full);
-    }
-
-    .btn-logout:hover {
-      background: rgba(239, 68, 68, 0.18);
-      color: #fca5a5;
-    }
-
-    .badge-user-active {
-      display: inline-flex;
-      align-items: center;
-      gap: 0.4rem;
-      padding: 0.35rem 0.85rem;
-      font-size: 0.82rem;
-      font-weight: 600;
-      color: var(--cyan-400);
-      background: rgba(56, 189, 248, 0.1);
-      border: 1px solid var(--border-accent);
-      border-radius: var(--radius-full);
-    }
-
-    .badge-dot {
-      width: 7px;
-      height: 7px;
-      border-radius: 50%;
-      background-color: var(--cyan-400);
-      box-shadow: 0 0 8px var(--cyan-400);
-    }
-
-    /* Mobile Menu Toggle */
-    .mobile-toggle {
-      display: none;
-      padding: 0.5rem;
-      color: var(--text-main);
-      border-radius: var(--radius-sm);
-    }
-
-    /* =========================================
-       Hero Section
-       ========================================= */
-    .hero-section {
-      position: relative;
-      padding: 5rem 0 6rem;
-      text-align: center;
-      overflow: hidden;
-    }
-
-    .hero-bg-atom {
-      position: absolute;
-      top: 50%;
-      left: 50%;
-      width: 540px;
-      height: 540px;
-      transform: translate(-50%, -50%);
-      opacity: 0.22;
-      pointer-events: none;
-      animation: atomRotate 60s linear infinite;
-      z-index: 0;
-    }
-
-    @keyframes atomRotate {
-      from { transform: translate(-50%, -50%) rotate(0deg); }
-      to { transform: translate(-50%, -50%) rotate(360deg); }
-    }
-
-    .hero-content {
-      position: relative;
-      z-index: 1;
-      max-width: 860px;
-      margin: 0 auto;
-    }
-
-    .hero-pill {
-      display: inline-flex;
-      align-items: center;
-      gap: 0.5rem;
-      padding: 0.45rem 1.1rem;
-      background: rgba(255, 255, 255, 0.04);
-      border: 1px solid var(--border-accent);
-      border-radius: var(--radius-full);
-      font-size: 0.88rem;
-      font-weight: 500;
-      color: var(--cyan-400);
-      margin-bottom: 1.75rem;
-      box-shadow: 0 0 20px rgba(56, 189, 248, 0.12);
-    }
-
-    .hero-title {
-      font-size: clamp(2rem, 5vw, 3.5rem);
-      font-weight: 800;
-      line-height: 1.35;
-      margin-bottom: 1.25rem;
-      letter-spacing: -0.02em;
-      background: linear-gradient(135deg, #ffffff 40%, #bae6fd 80%, var(--cyan-400) 100%);
-      -webkit-background-clip: text;
-      -webkit-text-fill-color: transparent;
-    }
-
-    .hero-motto {
-      font-size: clamp(1.05rem, 2.2vw, 1.35rem);
-      font-weight: 600;
-      color: var(--gold-400);
-      margin-bottom: 1.5rem;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      gap: 0.5rem;
-    }
-
-    .hero-subtitle {
-      font-size: 1.05rem;
-      color: var(--text-muted);
-      line-height: 2;
-      margin-bottom: 2.5rem;
-      max-width: 780px;
-      margin-left: auto;
-      margin-right: auto;
-    }
-
-    .hero-actions {
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      gap: 1.25rem;
-      flex-wrap: wrap;
-    }
-
-    .btn-hero-primary {
-      padding: 0.85rem 2rem;
-      font-size: 1.05rem;
-      font-weight: 700;
-      color: #07090e;
-      background: linear-gradient(135deg, var(--cyan-400), #7dd3fc);
-      border-radius: var(--radius-full);
-      box-shadow: 0 0 28px rgba(56, 189, 248, 0.4);
-      display: inline-flex;
-      align-items: center;
-      gap: 0.6rem;
-    }
-
-    .btn-hero-primary:hover {
-      transform: translateY(-2px);
-      box-shadow: 0 0 38px rgba(56, 189, 248, 0.65);
-    }
-
-    .btn-hero-secondary {
-      padding: 0.85rem 1.85rem;
-      font-size: 1.05rem;
-      font-weight: 600;
-      color: var(--text-main);
-      background: rgba(255, 255, 255, 0.05);
-      border: 1px solid rgba(255, 255, 255, 0.16);
-      border-radius: var(--radius-full);
-      display: inline-flex;
-      align-items: center;
-      gap: 0.6rem;
-    }
-
-    .btn-hero-secondary:hover {
-      background: rgba(255, 255, 255, 0.1);
-      border-color: var(--cyan-400);
-      color: #ffffff;
-      transform: translateY(-2px);
-    }
-
-    /* =========================================
-       Section Standard Headers
-       ========================================= */
-    .section-header {
-      text-align: center;
-      max-width: 680px;
-      margin: 0 auto 3.5rem;
-    }
-
-    .section-tag {
-      display: inline-block;
-      font-size: 0.82rem;
-      font-weight: 700;
-      color: var(--cyan-400);
-      text-transform: uppercase;
-      letter-spacing: 0.05em;
-      margin-bottom: 0.6rem;
-    }
-
-    .section-title {
-      font-size: clamp(1.6rem, 3.2vw, 2.3rem);
-      font-weight: 800;
-      color: var(--text-main);
-      line-height: 1.4;
-      margin-bottom: 0.85rem;
-    }
-
-    .section-desc {
-      font-size: 0.98rem;
-      color: var(--text-muted);
-    }
-
-    /* =========================================
-       How It Works («مسیر همراهی»)
-       ========================================= */
-    .steps-section {
-      padding: 4.5rem 0;
-      position: relative;
-    }
-
-    .steps-grid {
-      display: grid;
-      grid-template-columns: repeat(3, 1fr);
-      gap: 1.5rem;
-      position: relative;
-    }
-
-    .step-card {
-      background: var(--bg-card);
-      border: 1px solid var(--border-subtle);
-      border-radius: var(--radius-lg);
-      padding: 2.2rem 1.8rem;
-      position: relative;
-      transition: var(--transition);
-      backdrop-filter: blur(12px);
-      -webkit-backdrop-filter: blur(12px);
-      display: flex;
-      flex-direction: column;
-    }
-
-    .step-card:hover {
-      background: var(--bg-card-hover);
-      border-color: var(--border-accent);
-      transform: translateY(-5px);
-      box-shadow: var(--shadow-glow);
-    }
-
-    .step-number {
-      position: absolute;
-      top: 1.5rem;
-      left: 1.5rem;
-      font-size: 2.5rem;
-      font-weight: 800;
-      line-height: 1;
-      color: rgba(255, 255, 255, 0.05);
-      user-select: none;
-    }
-
-    .step-icon-wrap {
-      width: 54px;
-      height: 54px;
-      border-radius: var(--radius-md);
-      background: linear-gradient(135deg, rgba(56, 189, 248, 0.15), rgba(139, 92, 246, 0.15));
-      border: 1px solid var(--border-accent);
-      display: grid;
-      place-items: center;
-      font-size: 1.6rem;
-      margin-bottom: 1.5rem;
-      color: var(--cyan-400);
-    }
-
-    .step-card-title {
-      font-size: 1.2rem;
-      font-weight: 700;
-      color: var(--text-main);
-      margin-bottom: 0.85rem;
-    }
-
-    .step-card-desc {
-      font-size: 0.94rem;
-      color: var(--text-muted);
-      line-height: 1.85;
-    }
-
-    /* =========================================
-       Features Section («برنامه‌ها و محورها»)
-       ========================================= */
-    .features-section {
-      padding: 5rem 0;
-      position: relative;
-    }
-
-    .features-grid {
-      display: grid;
-      grid-template-columns: repeat(2, 1fr);
-      gap: 1.5rem;
-    }
-
-    .feature-card {
-      background: var(--bg-card);
-      border: 1px solid var(--border-subtle);
-      border-radius: var(--radius-lg);
-      padding: 2.2rem;
-      display: flex;
-      gap: 1.5rem;
-      align-items: flex-start;
-      transition: var(--transition);
-      backdrop-filter: blur(12px);
-      -webkit-backdrop-filter: blur(12px);
-    }
-
-    .feature-card:hover {
-      background: var(--bg-card-hover);
-      border-color: rgba(139, 92, 246, 0.4);
-      transform: translateY(-4px);
-      box-shadow: 0 10px 30px rgba(139, 92, 246, 0.15);
-    }
-
-    .feature-icon-box {
-      width: 58px;
-      height: 58px;
-      border-radius: var(--radius-md);
-      background: linear-gradient(135deg, rgba(139, 92, 246, 0.15), rgba(56, 189, 248, 0.15));
-      border: 1px solid rgba(139, 92, 246, 0.3);
-      display: grid;
-      place-items: center;
-      font-size: 1.8rem;
-      flex-shrink: 0;
-    }
-
-    .feature-body {
-      flex: 1;
-    }
-
-    .feature-title {
-      font-size: 1.18rem;
-      font-weight: 700;
-      color: var(--text-main);
-      margin-bottom: 0.65rem;
-      line-height: 1.4;
-    }
-
-    .feature-desc {
-      font-size: 0.94rem;
-      color: var(--text-muted);
-      line-height: 1.85;
-    }
-
-    /* =========================================
-       About Section («درباره رویداد»)
-       ========================================= */
-    .about-section {
-      padding: 5rem 0;
-      position: relative;
-    }
-
-    .about-card {
-      background: var(--bg-card);
-      border: 1px solid var(--border-subtle);
-      border-radius: var(--radius-lg);
-      padding: 3.5rem 3rem;
-      backdrop-filter: blur(16px);
-      -webkit-backdrop-filter: blur(16px);
-      box-shadow: var(--shadow-lg);
-      position: relative;
-    }
-
-    .about-heading {
-      font-size: clamp(1.5rem, 2.8vw, 2.1rem);
-      font-weight: 800;
-      color: var(--text-main);
-      margin-bottom: 1.75rem;
-      position: relative;
-      display: inline-block;
-    }
-
-    .about-heading::after {
-      content: '';
-      position: absolute;
-      bottom: -8px;
-      right: 0;
-      width: 60px;
-      height: 3px;
-      background: linear-gradient(90deg, var(--cyan-400), transparent);
-      border-radius: var(--radius-full);
-    }
-
-    .about-paragraphs {
-      display: flex;
-      flex-direction: column;
-      gap: 1.35rem;
-      margin-bottom: 2.5rem;
-    }
-
-    .about-p {
-      font-size: 1.02rem;
-      color: var(--text-muted);
-      line-height: 2;
-      text-align: justify;
-    }
-
-    .about-callout {
-      background: linear-gradient(135deg, rgba(245, 158, 11, 0.08), rgba(56, 189, 248, 0.05));
-      border: 1px solid rgba(245, 158, 11, 0.3);
-      border-right: 4px solid var(--gold-400);
-      border-radius: var(--radius-md);
-      padding: 1.4rem 1.6rem;
-      font-size: 1.05rem;
-      font-weight: 500;
-      line-height: 1.9;
-      color: #fef3c7;
-    }
-
-    /* =========================================
-       Forms & Admin Components
-       ========================================= */
-    .forms-section {
-      padding: 5rem 0;
-      position: relative;
-    }
-
-    .form-wrapper {
-      max-width: 640px;
-      margin: 0 auto;
-    }
-
-    .card-panel {
-      background: var(--bg-card);
-      border: 1px solid var(--border-subtle);
-      border-radius: var(--radius-lg);
-      padding: 3rem 2.5rem;
-      box-shadow: var(--shadow-lg);
-      backdrop-filter: blur(16px);
-      -webkit-backdrop-filter: blur(16px);
-      position: relative;
-    }
-
-    .card-panel.highlighted {
-      border-color: var(--border-accent);
-      box-shadow: var(--shadow-glow);
-    }
-
-    .form-title-group {
-      text-align: center;
-      margin-bottom: 2.25rem;
-    }
-
-    .form-main-title {
-      font-size: 1.65rem;
-      font-weight: 800;
-      color: var(--text-main);
-      margin-bottom: 0.5rem;
-    }
-
-    .form-sub-title {
-      font-size: 0.94rem;
-      color: var(--text-muted);
-    }
-
-    .form-grid {
-      display: flex;
-      flex-direction: column;
-      gap: 1.35rem;
-    }
-
-    .form-group {
-      display: flex;
-      flex-direction: column;
-      gap: 0.5rem;
-    }
-
-    .form-label {
-      font-size: 0.92rem;
-      font-weight: 600;
-      color: var(--text-main);
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-    }
-
-    .form-label-hint {
-      font-size: 0.78rem;
-      color: var(--text-dim);
-      font-weight: 400;
-    }
-
-    .form-input {
-      width: 100%;
-      height: 50px;
-      padding: 0 1.15rem;
-      background: rgba(10, 15, 29, 0.75);
-      border: 1px solid rgba(255, 255, 255, 0.12);
-      border-radius: var(--radius-md);
-      color: var(--text-main);
-      font-size: 0.98rem;
-      transition: var(--transition);
-    }
-
-    .form-input:focus {
-      outline: none;
-      border-color: var(--cyan-400);
-      box-shadow: 0 0 0 3px rgba(56, 189, 248, 0.2);
-      background: rgba(10, 15, 29, 0.95);
-    }
-
-    .form-input::placeholder {
-      color: var(--text-dim);
-      font-size: 0.88rem;
-    }
-
-    /* Force proper LTR for digits, phone, credentials */
-    .input-ltr {
-      direction: ltr;
-      text-align: left;
-    }
-
-    .form-alert {
-      display: none;
-      padding: 0.9rem 1.1rem;
-      border-radius: var(--radius-md);
-      font-size: 0.9rem;
-      font-weight: 500;
-      line-height: 1.6;
-      align-items: center;
-      gap: 0.75rem;
-    }
-
-    .form-alert.show {
-      display: flex;
-    }
-
-    .form-alert-error {
-      background: var(--danger-bg);
-      border: 1px solid rgba(239, 68, 68, 0.35);
-      color: #fca5a5;
-    }
-
-    .form-alert-success {
-      background: var(--success-bg);
-      border: 1px solid rgba(16, 185, 129, 0.35);
-      color: #86efac;
-    }
-
-    .btn-submit {
-      width: 100%;
-      height: 52px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      gap: 0.6rem;
-      font-size: 1.05rem;
-      font-weight: 700;
-      color: #07090e;
-      background: linear-gradient(135deg, var(--cyan-400), #7dd3fc);
-      border-radius: var(--radius-md);
-      box-shadow: 0 0 24px rgba(56, 189, 248, 0.3);
-      margin-top: 0.5rem;
-    }
-
-    .btn-submit:hover:not(:disabled) {
-      transform: translateY(-2px);
-      box-shadow: 0 0 32px rgba(56, 189, 248, 0.55);
-    }
-
-    .btn-submit:disabled {
-      opacity: 0.65;
-      cursor: not-allowed;
-      transform: none !important;
-    }
-
-    /* Spinner */
-    .spinner {
-      display: none;
-      width: 20px;
-      height: 20px;
-      border: 2px solid rgba(7, 9, 14, 0.3);
-      border-top-color: #07090e;
-      border-radius: 50%;
-      animation: spin 0.8s linear infinite;
-    }
-
-    .btn-loading .spinner {
-      display: inline-block;
-    }
-
-    .btn-loading .btn-text-content {
-      opacity: 0.85;
-    }
-
-    @keyframes spin {
-      to { transform: rotate(360deg); }
-    }
-
-    /* Already registered view */
-    .registered-box {
-      display: none;
-      text-align: center;
-      padding: 1.5rem 0;
-    }
-
-    .registered-box.show {
-      display: block;
-    }
-
-    .registered-icon {
-      width: 64px;
-      height: 64px;
-      margin: 0 auto 1.25rem;
-      background: rgba(16, 185, 129, 0.15);
-      border: 1px solid rgba(16, 185, 129, 0.3);
-      border-radius: 50%;
-      display: grid;
-      place-items: center;
-      color: var(--success);
-      font-size: 2rem;
-    }
-
-    /* Admin Section Styles */
-    .admin-login-wrapper {
-      margin-top: 4rem;
-      max-width: 520px;
-      margin-left: auto;
-      margin-right: auto;
-    }
-
-    .admin-panel-section {
-      display: none;
-      padding: 4rem 0;
-      position: relative;
-    }
-
-    .admin-panel-section.show {
-      display: block;
-    }
-
-    .admin-card {
-      background: linear-gradient(135deg, rgba(20, 29, 56, 0.85), rgba(15, 23, 42, 0.85));
-      border: 1px solid var(--border-accent);
-      border-radius: var(--radius-lg);
-      padding: 3rem 2.5rem;
-      box-shadow: 0 0 35px rgba(56, 189, 248, 0.15);
-      backdrop-filter: blur(16px);
-      -webkit-backdrop-filter: blur(16px);
-      text-align: center;
-      max-width: 720px;
-      margin: 0 auto;
-    }
-
-    .admin-badge {
-      display: inline-flex;
-      align-items: center;
-      gap: 0.4rem;
-      padding: 0.35rem 0.9rem;
-      background: rgba(139, 92, 246, 0.15);
-      border: 1px solid rgba(139, 92, 246, 0.35);
-      border-radius: var(--radius-full);
-      color: var(--violet-400);
-      font-size: 0.82rem;
-      font-weight: 600;
-      margin-bottom: 1.25rem;
-    }
-
-    .admin-heading {
-      font-size: 1.85rem;
-      font-weight: 800;
-      color: #ffffff;
-      margin-bottom: 1rem;
-    }
-
-    .admin-info-text {
-      font-size: 0.98rem;
-      color: var(--text-muted);
-      line-height: 1.9;
-      margin-bottom: 2.25rem;
-    }
-
-    .btn-download-excel {
-      display: inline-flex;
-      align-items: center;
-      justify-content: center;
-      gap: 0.75rem;
-      padding: 0.95rem 2.25rem;
-      font-size: 1.05rem;
-      font-weight: 700;
-      color: #ffffff;
-      background: linear-gradient(135deg, #10b981, #059669);
-      border-radius: var(--radius-md);
-      box-shadow: 0 0 28px rgba(16, 185, 129, 0.35);
-    }
-
-    .btn-download-excel:hover:not(:disabled) {
-      transform: translateY(-2px);
-      box-shadow: 0 0 36px rgba(16, 185, 129, 0.55);
-    }
-
-    .btn-download-excel:disabled {
-      opacity: 0.65;
-      cursor: not-allowed;
-    }
-
-    /* =========================================
-       Footer
-       ========================================= */
-    .footer {
-      margin-top: auto;
-      background-color: #05070a;
-      border-top: 1px solid var(--border-subtle);
-      padding: 4rem 0 2rem;
-    }
-
-    .footer-grid {
-      display: grid;
-      grid-template-columns: 2fr 1fr 1fr;
-      gap: 3rem;
-      margin-bottom: 3rem;
-    }
-
-    .footer-brand {
-      display: flex;
-      flex-direction: column;
-      gap: 1rem;
-    }
-
-    .footer-title {
-      font-size: 1.15rem;
-      font-weight: 800;
-      color: #ffffff;
-    }
-
-    .footer-organizers {
-      font-size: 0.92rem;
-      color: var(--text-muted);
-      line-height: 1.85;
-    }
-
-    .footer-date-badge {
-      display: inline-flex;
-      align-items: center;
-      gap: 0.5rem;
-      font-size: 0.85rem;
-      color: var(--cyan-400);
-      font-weight: 600;
-    }
-
-    .footer-col-title {
-      font-size: 0.98rem;
-      font-weight: 700;
-      color: var(--text-main);
-      margin-bottom: 1.25rem;
-    }
-
-    .footer-links {
-      list-style: none;
-      display: flex;
-      flex-direction: column;
-      gap: 0.75rem;
-    }
-
-    .footer-links a {
-      font-size: 0.9rem;
-      color: var(--text-muted);
-    }
-
-    .footer-links a:hover {
-      color: var(--cyan-400);
-      padding-right: 4px;
-    }
-
-    .footer-bottom {
-      border-top: 1px solid rgba(255, 255, 255, 0.05);
-      padding-top: 2rem;
-      text-align: center;
-      font-size: 0.85rem;
-      color: var(--text-dim);
-    }
-
-    /* =========================================
-       Toast Notification System
-       ========================================= */
-    .toast-container {
-      position: fixed;
-      top: 1.5rem;
-      left: 1.5rem;
-      z-index: 9999;
-      display: flex;
-      flex-direction: column;
-      gap: 0.75rem;
-      pointer-events: none;
-      max-width: 380px;
-      width: calc(100% - 3rem);
-    }
-
-    .toast {
-      pointer-events: auto;
-      background: rgba(14, 21, 38, 0.95);
-      border: 1px solid var(--border-subtle);
-      border-radius: var(--radius-md);
-      padding: 0.9rem 1.15rem;
-      display: flex;
-      align-items: center;
-      gap: 0.75rem;
-      box-shadow: var(--shadow-lg);
-      backdrop-filter: blur(12px);
-      -webkit-backdrop-filter: blur(12px);
-      transform: translateY(-20px) scale(0.95);
-      opacity: 0;
-      transition: all 0.28s cubic-bezier(0.16, 1, 0.3, 1);
-    }
-
-    .toast.toast-show {
-      transform: translateY(0) scale(1);
-      opacity: 1;
-    }
-
-    .toast.toast-hide {
-      transform: translateY(-20px) scale(0.95);
-      opacity: 0;
-    }
-
-    .toast-success {
-      border-color: rgba(16, 185, 129, 0.4);
-      border-right: 4px solid var(--success);
-    }
-
-    .toast-error {
-      border-color: rgba(239, 68, 68, 0.4);
-      border-right: 4px solid var(--danger);
-    }
-
-    .toast-info {
-      border-color: var(--border-accent);
-      border-right: 4px solid var(--cyan-400);
-    }
-
-    .toast-icon {
-      width: 22px;
-      height: 22px;
-      flex-shrink: 0;
-    }
-
-    .toast-success .toast-icon { color: var(--success); }
-    .toast-error .toast-icon { color: var(--danger); }
-    .toast-info .toast-icon { color: var(--cyan-400); }
-
-    .toast-text {
-      font-size: 0.9rem;
-      font-weight: 500;
-      color: var(--text-main);
-      line-height: 1.5;
-      flex: 1;
-    }
-
-    .toast-close {
-      color: var(--text-dim);
-      font-size: 1.35rem;
-      line-height: 1;
-      padding: 0 0.25rem;
-      cursor: pointer;
-    }
-
-    .toast-close:hover {
-      color: #ffffff;
-    }
-
-    /* =========================================
-       Responsive Breakpoints (Mobile First)
-       ========================================= */
-    @media (max-width: 768px) {
-      .navbar-inner {
-        height: 64px;
-      }
-
-      .mobile-toggle {
-        display: block;
-      }
-
-      .nav-content {
-        position: fixed;
-        top: 64px;
-        left: 0;
-        right: 0;
-        background: rgba(7, 9, 14, 0.98);
-        border-bottom: 1px solid var(--border-subtle);
-        padding: 1.5rem;
-        flex-direction: column;
-        gap: 1.25rem;
-        display: none;
-        backdrop-filter: blur(20px);
-        -webkit-backdrop-filter: blur(20px);
-      }
-
-      .nav-content.mobile-open {
-        display: flex;
-      }
-
-      .nav-links {
-        flex-direction: column;
-        width: 100%;
-        text-align: center;
-        gap: 0.75rem;
-      }
-
-      .nav-auth {
-        flex-direction: column;
-        width: 100%;
-        gap: 0.75rem;
-      }
-
-      .btn-nav-primary, .btn-nav-ghost, .btn-logout {
-        width: 100%;
-        text-align: center;
-        justify-content: center;
-        display: flex;
-      }
-
-      .hero-section {
-        padding: 3.5rem 0 4.5rem;
-      }
-
-      .steps-grid {
-        grid-template-columns: 1fr;
-      }
-
-      .features-grid {
-        grid-template-columns: 1fr;
-      }
-
-      .feature-card {
-        padding: 1.6rem;
-      }
-
-      .about-card {
-        padding: 2.2rem 1.5rem;
-      }
-
-      .card-panel {
-        padding: 2.2rem 1.4rem;
-      }
-
-      .footer-grid {
-        grid-template-columns: 1fr;
-        gap: 2rem;
-      }
-    }
-  </style>
+  <!-- External Stylesheet -->
+  <link rel="stylesheet" href="style.css">
+  
+  <!-- Client Application Logic (Deferred) -->
+  <script src="app.js" defer></script>
 </head>
 <body>
 
-  <!-- Ambient Glow Orbs -->
+  <!-- Ambient Cosmic Glows -->
   <div class="cosmic-orb cosmic-orb-1" aria-hidden="true"></div>
   <div class="cosmic-orb cosmic-orb-2" aria-hidden="true"></div>
 
-  <!-- Toast Notification Hub -->
+  <!-- Accessible Toast Container -->
   <div id="toast-container" class="toast-container" role="alert" aria-live="polite"></div>
 
-  <!-- =========================================
-       1. Navbar
-       ========================================= -->
+  <!-- ========================================================================
+       1. Header & Navigation
+       ======================================================================== -->
   <header class="navbar" id="navbar">
     <div class="container navbar-inner">
-      <!-- Right Side (RTL Start): Logo / Event Name -->
+      <!-- Right: University & Event Brand -->
       <a href="#" class="brand" aria-label="صفحه اصلی شب علم">
-        <div class="brand-logo" aria-hidden="true">
-          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-            <circle cx="12" cy="12" r="3"/>
-            <ellipse cx="12" cy="12" rx="10" ry="4" transform="rotate(30 12 12)"/>
-            <ellipse cx="12" cy="12" rx="10" ry="4" transform="rotate(-30 12 12)"/>
-          </svg>
+        <div class="brand-emblem-wrap">
+          <img src="assets/logo.png" alt="آرم دانشگاه صنعتی نوشیروانی بابل" class="brand-logo" width="36" height="36">
         </div>
-        <div class="brand-name">
+        <div class="brand-info">
           <span class="brand-title">شب علم</span>
           <span class="brand-sub">دانشگاه صنعتی نوشیروانی بابل</span>
         </div>
       </a>
 
-      <!-- Mobile Menu Button -->
-      <button class="mobile-toggle" id="mobile-toggle" aria-label="منوی ناوبری" aria-expanded="false">
-        <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+      <!-- Mobile Navigation Hamburger Toggle -->
+      <button class="mobile-toggle" id="mobile-toggle" aria-label="منوی ناوبری" aria-expanded="false" aria-controls="nav-content">
+        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
           <line x1="3" y1="12" x2="21" y2="12"></line>
           <line x1="3" y1="6" x2="21" y2="6"></line>
           <line x1="3" y1="18" x2="21" y2="18"></line>
         </svg>
       </button>
 
-      <!-- Left Side (RTL End): Links & Auth -->
+      <!-- Navigation Content -->
       <nav class="nav-content" id="nav-content" aria-label="ناوبری اصلی">
         <ul class="nav-links">
           <li><a href="#about" class="nav-link">درباره رویداد</a></li>
           <li><a href="#features" class="nav-link">برنامه‌ها</a></li>
-          <li><a href="#how-it-works" class="nav-link">اهداف</a></li>
+          <li><a href="#how-it-works" class="nav-link">مسیر رویداد</a></li>
         </ul>
 
-        <!-- Dynamic Auth Container -->
+        <!-- Dynamic Auth Action (Normal users see only registration/welcome; No admin buttons) -->
         <div class="nav-auth" id="nav-auth">
-          <!-- Populated by JS based on userToken / adminToken -->
+          <!-- Injected dynamically by app.js -->
         </div>
       </nav>
     </div>
   </header>
 
   <main>
-    <!-- =========================================
+    <!-- ========================================================================
          2. Hero Section
-         ========================================= -->
+         ======================================================================== -->
     <section class="hero-section" id="hero">
-      <!-- Abstract Animated Atomic Rings SVG -->
+      <!-- Subtle Abstract Atomic Orbit SVG -->
       <svg class="hero-bg-atom" viewBox="0 0 400 400" aria-hidden="true">
         <defs>
-          <linearGradient id="atomGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+          <linearGradient id="atomGradient" x1="0%" y1="0%" x2="100%" y2="100%">
             <stop offset="0%" stop-color="#38bdf8" stop-opacity="0.7"/>
             <stop offset="100%" stop-color="#8b5cf6" stop-opacity="0.3"/>
           </linearGradient>
         </defs>
-        <circle cx="200" cy="200" r="16" fill="#38bdf8" opacity="0.6"/>
-        <ellipse cx="200" cy="200" rx="170" ry="65" stroke="url(#atomGrad)" stroke-width="1.5" fill="none" transform="rotate(0 200 200)" />
-        <ellipse cx="200" cy="200" rx="170" ry="65" stroke="url(#atomGrad)" stroke-width="1.5" fill="none" transform="rotate(60 200 200)" />
-        <ellipse cx="200" cy="200" rx="170" ry="65" stroke="url(#atomGrad)" stroke-width="1.5" fill="none" transform="rotate(120 200 200)" />
+        <circle cx="200" cy="200" r="14" fill="#38bdf8" opacity="0.6"/>
+        <ellipse cx="200" cy="200" rx="170" ry="65" stroke="url(#atomGradient)" stroke-width="1.5" fill="none" transform="rotate(0 200 200)" />
+        <ellipse cx="200" cy="200" rx="170" ry="65" stroke="url(#atomGradient)" stroke-width="1.5" fill="none" transform="rotate(60 200 200)" />
+        <ellipse cx="200" cy="200" rx="170" ry="65" stroke="url(#atomGradient)" stroke-width="1.5" fill="none" transform="rotate(120 200 200)" />
       </svg>
 
       <div class="container hero-content reveal">
-        <!-- Top Pill -->
-        <div class="hero-pill">
-          <span>📅 ۱۲ آذرماه ۱۴۰۵</span>
-          <span>|</span>
-          <span>📍 دانشگاه صنعتی نوشیروانی بابل</span>
+        <!-- Top Pill with University Logo -->
+        <div class="hero-crest-badge">
+          <img src="assets/logo.png" alt="نوشیروانی" class="hero-crest-img" width="22" height="22">
+          <span class="hero-pill-text">📅 ۱۲ آذرماه ۱۴۰۵ | 📍 دانشگاه صنعتی نوشیروانی بابل</span>
         </div>
 
         <!-- Big Headline -->
@@ -1314,9 +99,7 @@
 
         <!-- Sub-headline / Motto -->
         <p class="hero-motto">
-          <span>✨</span>
-          <span>پل ارتباطی میان دانشگاه، صنعت و جامعه — بپرس، کشف کن، فراتر برو</span>
-          <span>✨</span>
+          پل ارتباطی میان دانشگاه، صنعت و جامعه — بپرس، کشف کن، فراتر برو
         </p>
 
         <!-- Subtitle -->
@@ -1324,17 +107,17 @@
           رویدادی علمی و تعاملی در دانشگاه صنعتی نوشیروانی بابل که با هدف نزدیک‌تر کردن علم به زندگی روزمره، شکستن دیوارهای کلاسیک میان مراکز آکادمیک و عموم مردم، و تقویت ارتباط میان دانشگاه و جامعه برگزار می‌شود.
         </p>
 
-        <!-- Action Buttons -->
+        <!-- Call to Actions -->
         <div class="hero-actions">
-          <a href="#signup" class="btn-hero-primary">
+          <a href="#signup" class="btn-primary">
             <span>ثبت‌نام در رویداد</span>
-            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" aria-hidden="true">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" aria-hidden="true">
               <path stroke-linecap="round" stroke-linejoin="round" d="M19 12H5M12 19l-7-7 7-7"/>
             </svg>
           </a>
-          <a href="#about" class="btn-hero-secondary">
+          <a href="#about" class="btn-ghost">
             <span>آشنایی بیشتر</span>
-            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
               <path stroke-linecap="round" stroke-linejoin="round" d="M19 9l-7 7-7-7"/>
             </svg>
           </a>
@@ -1342,44 +125,50 @@
       </div>
     </section>
 
-    <!-- =========================================
+    <!-- ========================================================================
          3. How It Works («مسیر همراهی شما در شب علم»)
-         ========================================= -->
+         ======================================================================== -->
     <section class="steps-section" id="how-it-works">
       <div class="container">
         <div class="section-header reveal">
           <span class="section-tag">مسیر همراهی</span>
           <h2 class="section-title">مسیر همراهی شما در شب علم</h2>
-          <p class="section-desc">سه گام تا پیوستن به بزرگ‌ترین جشن ترویج علم و پژوهش</p>
+          <p class="section-desc">سه گام ساده برای حضور در بزرگ‌ترین گردهمایی علمی و فرهنگی منطقه</p>
         </div>
 
         <div class="steps-grid">
           <!-- Step 1 -->
           <article class="step-card reveal">
-            <span class="step-number" aria-hidden="true">01</span>
-            <div class="step-icon-wrap" aria-hidden="true">📝</div>
-            <h3 class="step-card-title">ثبت‌نام در سامانه</h3>
-            <p class="step-card-desc">
+            <div class="step-top">
+              <div class="step-icon-wrap" aria-hidden="true">📝</div>
+              <span class="step-number" aria-hidden="true">01</span>
+            </div>
+            <h3 class="step-title">ثبت‌نام در سامانه</h3>
+            <p class="step-desc">
               علاقه‌مندان و خانواده‌ها با وارد کردن نام، کد ملی و شماره همراه خود، به صورت آنی در رویداد ثبت‌نام می‌کنند.
             </p>
           </article>
 
           <!-- Step 2 -->
           <article class="step-card reveal">
-            <span class="step-number" aria-hidden="true">02</span>
-            <div class="step-icon-wrap" aria-hidden="true">🔍</div>
-            <h3 class="step-card-title">بپرس و کشف کن</h3>
-            <p class="step-card-desc">
+            <div class="step-top">
+              <div class="step-icon-wrap" aria-hidden="true">🔍</div>
+              <span class="step-number" aria-hidden="true">02</span>
+            </div>
+            <h3 class="step-title">بپرس و کشف کن</h3>
+            <p class="step-desc">
               حضور در دانشگاه در تاریخ ۱۲ آذرماه ۱۴۰۵ و مشارکت در سخنرانی‌ها، کارگاه‌های آموزشی، غرفه‌های علمی و فعالیت‌های فرهنگی و هنری.
             </p>
           </article>
 
           <!-- Step 3 -->
           <article class="step-card reveal">
-            <span class="step-number" aria-hidden="true">03</span>
-            <div class="step-icon-wrap" aria-hidden="true">🚀</div>
-            <h3 class="step-card-title">فراتر برو (علم برای زندگی)</h3>
-            <p class="step-card-desc">
+            <div class="step-top">
+              <div class="step-icon-wrap" aria-hidden="true">🚀</div>
+              <span class="step-number" aria-hidden="true">03</span>
+            </div>
+            <h3 class="step-title">فراتر برو (علم برای زندگی)</h3>
+            <p class="step-desc">
               گفت‌وگو و رویارویی نزدیک با دستاوردهای علمی و فناوری‌ها برای شناخت بهتر جهان و کاربرد دانش در مسائل واقعی زندگی.
             </p>
           </article>
@@ -1387,15 +176,15 @@
       </div>
     </section>
 
-    <!-- =========================================
+    <!-- ========================================================================
          4. Features («برنامه‌ها و محورهای رویداد»)
-         ========================================= -->
+         ======================================================================== -->
     <section class="features-section" id="features">
       <div class="container">
         <div class="section-header reveal">
-          <span class="section-tag">محورهای اصلی</span>
+          <span class="section-tag">برنامه‌ها و امکانات</span>
           <h2 class="section-title">برنامه‌ها و محورهای رویداد</h2>
-          <p class="section-desc">مجموعه‌ای از نشست‌ها، آزمایش‌ها و تعاملات مستقیم با پژوهشگران و اساتید</p>
+          <p class="section-desc">محیطی تعاملی و پرانرژی برای پژوهشگران، دانشجویان، دانش‌آموزان و خانواده‌ها</p>
         </div>
 
         <div class="features-grid">
@@ -1421,13 +210,13 @@
             </div>
           </div>
 
-          <!-- Feature 3 -->
+          <!-- Feature 3 (Public-friendly, zero jargon) -->
           <div class="feature-card reveal">
             <div class="feature-icon-box" aria-hidden="true">🔒</div>
             <div class="feature-body">
               <h3 class="feature-title">ثبت‌نام یکپارچه و هوشمند</h3>
               <p class="feature-desc">
-                احراز هویت امن بر پایه توکن JWT با تفکیک دسترسی شرکت‌کنندگان و مدیران اجرایی رویداد.
+                فرآیند ورود سریع، آسان و بی‌دردسر برای عموم شرکت‌کنندگان، بدون نیاز به کاغذ و با دریافت پیامک تایید آنی.
               </p>
             </div>
           </div>
@@ -1446,9 +235,9 @@
       </div>
     </section>
 
-    <!-- =========================================
+    <!-- ========================================================================
          5. About / Purpose («درباره رویداد»)
-         ========================================= -->
+         ======================================================================== -->
     <section class="about-section" id="about">
       <div class="container">
         <div class="about-card reveal">
@@ -1466,7 +255,7 @@
             </p>
           </div>
 
-          <!-- Quote / Callout Block -->
+          <!-- Official Callout Quote -->
           <blockquote class="about-callout">
             🌺 در شب علم، منتظر حضور تمامی علاقه‌مندان، دانش‌دوستان و خانواده‌های فرهیخته هستیم تا در کنار هم، چراغ‌های علم را روشن نگه داریم. با ما همراه باشید.
           </blockquote>
@@ -1474,26 +263,26 @@
       </div>
     </section>
 
-    <!-- =========================================
-         6. User Sign-Up Form («ثبت‌نام شرکت‌کنندگان»)
-         ========================================= -->
+    <!-- ========================================================================
+         6. Public User Sign-Up Form («ثبت‌نام شرکت‌کنندگان»)
+         ======================================================================== -->
     <section class="forms-section" id="signup">
       <div class="container">
         <div class="form-wrapper">
           <div class="card-panel highlighted reveal" id="signup-card">
             
-            <!-- Standard Form Content -->
+            <!-- Active Registration Form -->
             <div id="signup-form-container">
               <div class="form-title-group">
                 <h2 class="form-main-title">ثبت‌نام شرکت‌کنندگان در شب علم</h2>
-                <p class="form-sub-title">حضور در رویداد رایگان است؛ جهت هماهنگی و صدور کارت ورود ثبت‌نام نمایید.</p>
+                <p class="form-sub-title">حضور در رویداد رایگان است؛ جهت صدور کارت الکترونیکی اطلاعات خود را وارد نمایید.</p>
               </div>
 
-              <!-- Error Box -->
+              <!-- Inline Error Container -->
               <div class="form-alert form-alert-error" id="signup-error-box" role="alert">
                 <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
                   <circle cx="12" cy="12" r="10"></circle>
-                  <line x1="12" y1="8" x2="12" y2="12"></line>
+                  <line x1="12" y1="8" x2="12"></line>
                   <line x1="12" y1="16" x2="12.01" y2="16"></line>
                 </svg>
                 <span id="signup-error-msg"></span>
@@ -1518,11 +307,11 @@
                     >
                   </div>
 
-                  <!-- National Code (SSN) -->
+                  <!-- National ID (SSN) -->
                   <div class="form-group">
                     <label for="ssn" class="form-label">
                       <span>کد ملی</span>
-                      <span class="form-label-hint">۱۰ رقم، بدون خط تیره</span>
+                      <span class="form-label-hint">۱۰ رقم</span>
                     </label>
                     <input 
                       type="text" 
@@ -1540,7 +329,7 @@
                   <div class="form-group">
                     <label for="phone" class="form-label">
                       <span>شماره تلفن همراه</span>
-                      <span class="form-label-hint">جهت دریافت پیامک ورود</span>
+                      <span class="form-label-hint">ارسال پیامک تایید</span>
                     </label>
                     <input 
                       type="tel" 
@@ -1554,7 +343,7 @@
                     >
                   </div>
 
-                  <!-- Submit Button -->
+                  <!-- Submit CTA -->
                   <button type="submit" class="btn-submit" id="signup-btn">
                     <span class="spinner" aria-hidden="true"></span>
                     <span class="btn-text-content">ثبت نام در رویداد</span>
@@ -1567,83 +356,18 @@
             <div class="registered-box" id="signup-registered-box">
               <div class="registered-icon" aria-hidden="true">✓</div>
               <h3 class="form-main-title">ثبت‌نام شما قبلاً با موفقیت انجام شده است</h3>
-              <p class="form-sub-title" style="margin-bottom: 1.5rem;">اطلاعات شما در سامانه شب علم ثبت شده است. مشتاق دیدار شما در ۱۲ آذرماه هستیم.</p>
-              <button type="button" class="btn-nav-ghost" style="margin: 0 auto; display: inline-flex;" id="btn-re-register">ثبت‌نام شرکت‌کننده دیگر (خروج)</button>
+              <p class="form-sub-title" style="margin-bottom: 1.5rem;">اطلاعات شما در سامانه ثبت شده است. مشتاق دیدار شما در ۱۲ آذرماه هستیم.</p>
+              <button type="button" class="btn-ghost" style="margin: 0 auto; display: inline-flex;" id="btn-re-register">ثبت‌نام شرکت‌کننده دیگر (خروج)</button>
             </div>
 
           </div>
         </div>
-
-        <!-- =========================================
-             7. Admin Login Form («ورود مدیران اجرایی»)
-             ========================================= -->
-        <div class="admin-login-wrapper" id="admin-login-section">
-          <div class="card-panel reveal" id="admin-login-card">
-            <div class="form-title-group">
-              <div class="admin-badge">🔐 درگاه ویژه مسئولین اجرایی</div>
-              <h2 class="form-main-title">ورود مدیران اجرایی</h2>
-              <p class="form-sub-title">دسترسی به سامانه مدیریت و دریافت آمار شرکت‌کنندگان</p>
-            </div>
-
-            <!-- Admin Error Box -->
-            <div class="form-alert form-alert-error" id="admin-error-box" role="alert">
-              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
-                <circle cx="12" cy="12" r="10"></circle>
-                <line x1="12" y1="8" x2="12" y2="12"></line>
-                <line x1="12" y1="16" x2="12.01" y2="16"></line>
-              </svg>
-              <span id="admin-error-msg"></span>
-            </div>
-
-            <form id="admin-login-form" novalidate>
-              <div class="form-grid">
-                <div class="form-group">
-                  <label for="admin-username" class="form-label">
-                    <span>نام کاربری</span>
-                  </label>
-                  <input 
-                    type="text" 
-                    id="admin-username" 
-                    name="username" 
-                    class="form-input input-ltr" 
-                    placeholder="admin_username" 
-                    autocomplete="username" 
-                    required
-                  >
-                </div>
-
-                <div class="form-group">
-                  <label for="admin-password" class="form-label">
-                    <span>رمز عبور</span>
-                    <span class="form-label-hint">حداقل ۸ کاراکتر</span>
-                  </label>
-                  <input 
-                    type="password" 
-                    id="admin-password" 
-                    name="password" 
-                    class="form-input input-ltr" 
-                    placeholder="••••••••" 
-                    autocomplete="current-password" 
-                    minlength="8" 
-                    required
-                  >
-                </div>
-
-                <button type="submit" class="btn-submit" id="admin-login-btn">
-                  <span class="spinner" aria-hidden="true"></span>
-                  <span class="btn-text-content">ورود به پنل مدیریت</span>
-                </button>
-              </div>
-            </form>
-          </div>
-        </div>
-
       </div>
     </section>
 
-    <!-- =========================================
-         8. Admin Panel Section («پنل مدیریت»)
-         ========================================= -->
+    <!-- ========================================================================
+         7. Admin Panel (Displayed ONLY when adminToken is active)
+         ======================================================================== -->
     <section class="admin-panel-section" id="admin-panel">
       <div class="container">
         <div class="admin-card reveal">
@@ -1655,7 +379,7 @@
 
           <button type="button" class="btn-download-excel" id="btn-export-excel">
             <span class="spinner" aria-hidden="true"></span>
-            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
               <path stroke-linecap="round" stroke-linejoin="round" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
             </svg>
             <span class="btn-text-content">📥 دریافت لیست شرکت‌کنندگان (Excel)</span>
@@ -1665,20 +389,86 @@
     </section>
   </main>
 
-  <!-- =========================================
+  <!-- ========================================================================
+       8. Discreet Admin Login Modal (Hidden from public view)
+       ======================================================================== -->
+  <div class="modal-overlay" id="admin-modal" role="dialog" aria-modal="true" aria-labelledby="admin-modal-title">
+    <div class="modal-box">
+      <button type="button" class="modal-close-btn" id="modal-close-btn" aria-label="بستن پنجره">&times;</button>
+      
+      <div class="form-title-group" style="margin-bottom: 1.5rem;">
+        <div class="admin-badge">🔐 درگاه همکاران اجرایی</div>
+        <h3 class="form-main-title" id="admin-modal-title" style="font-size: 1.35rem;">ورود مدیران اجرایی</h3>
+        <p class="form-sub-title">سامانه مدیریت و گزارش‌گیری رویداد شب علم</p>
+      </div>
+
+      <div class="form-alert form-alert-error" id="admin-error-box" role="alert">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
+          <circle cx="12" cy="12" r="10"></circle>
+          <line x1="12" y1="8" x2="12"></line>
+          <line x1="12" y1="16" x2="12.01" y2="16"></line>
+        </svg>
+        <span id="admin-error-msg"></span>
+      </div>
+
+      <form id="admin-login-form" novalidate>
+        <div class="form-grid">
+          <div class="form-group">
+            <label for="admin-username" class="form-label">نام کاربری</label>
+            <input 
+              type="text" 
+              id="admin-username" 
+              name="username" 
+              class="form-input input-ltr" 
+              placeholder="admin" 
+              autocomplete="username" 
+              required
+            >
+          </div>
+
+          <div class="form-group">
+            <label for="admin-password" class="form-label">
+              <span>رمز عبور</span>
+              <span class="form-label-hint">حداقل ۸ کاراکتر</span>
+            </label>
+            <input 
+              type="password" 
+              id="admin-password" 
+              name="password" 
+              class="form-input input-ltr" 
+              placeholder="••••••••" 
+              autocomplete="current-password" 
+              minlength="8" 
+              required
+            >
+          </div>
+
+          <button type="submit" class="btn-submit" id="admin-login-btn">
+            <span class="spinner" aria-hidden="true"></span>
+            <span class="btn-text-content">ورود به پنل مدیریت</span>
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- ========================================================================
        9. Footer
-       ========================================= -->
+       ======================================================================== -->
   <footer class="footer">
     <div class="container">
       <div class="footer-grid">
         <div class="footer-brand">
-          <h3 class="footer-title">رویداد شب علم دانشگاه صنعتی نوشیروانی بابل — Science Night</h3>
+          <div class="footer-brand-header">
+            <img src="assets/logo.png" alt="دانشگاه صنعتی نوشیروانی بابل" class="footer-logo" width="32" height="32">
+            <h3 class="footer-title">رویداد شب علم دانشگاه صنعتی نوشیروانی بابل — Science Night</h3>
+          </div>
           <p class="footer-organizers">
             با حمایت بنیاد ملی علم ایران و معاونت علمی، فناوری و اقتصاد دانش‌بنیان ریاست جمهوری
           </p>
           <div class="footer-date-badge">
             <span>📍 بابل، خیابان دکتر شریعتی، دانشگاه صنعتی نوشیروانی</span>
-            <span>•</span>
+            <span> | </span>
             <span>📅 ۱۲ آذرماه ۱۴۰۵</span>
           </div>
         </div>
@@ -1688,550 +478,22 @@
           <ul class="footer-links">
             <li><a href="#about">درباره رویداد</a></li>
             <li><a href="#features">برنامه‌ها و کارگاه‌ها</a></li>
-            <li><a href="#how-it-works">مسیر و اهداف</a></li>
+            <li><a href="#how-it-works">مسیر همراهی</a></li>
             <li><a href="#signup">ثبت‌نام در رویداد</a></li>
-          </ul>
-        </div>
-
-        <div>
-          <h4 class="footer-col-title">بخش اداری</h4>
-          <ul class="footer-links">
-            <li><a href="#admin-login-section">ورود مدیران اجرایی</a></li>
-            <li><a href="#hero">بازگشت به ابتدای صفحه</a></li>
           </ul>
         </div>
       </div>
 
       <div class="footer-bottom">
         <p>© ۱۴۰۵ تمامی حقوق برای دانشگاه صنعتی نوشیروانی بابل محفوظ است.</p>
+        <!-- Discreet trigger for university staff -->
+        <a href="#admin" class="admin-discreet-trigger" id="admin-discreet-trigger" title="درگاه مدیران">
+          <span>🔒</span>
+          <span>پرتال همکاران</span>
+        </a>
       </div>
     </div>
   </footer>
 
-  <!-- =========================================
-       JavaScript Logic
-       ========================================= -->
-  <script>
-    // Configuration
-    const API_BASE = 'http://localhost:1234';
-
-    /**
-     * Converts Persian (۰-۹) and Arabic (٠-٩) numerals to standard ASCII digits (0-9)
-     */
-    function toEnglishDigits(str) {
-      if (!str) return '';
-      return String(str)
-        .replace(/[۰-۹]/g, c => String(c.charCodeAt(0) - 1776))
-        .replace(/[٠-٩]/g, c => String(c.charCodeAt(0) - 1632));
-    }
-
-    /**
-     * Reusable fetch wrapper handling baseUrl, JSON headers, and JWT auth
-     */
-    async function apiFetch(endpoint, options = {}) {
-      const url = `${API_BASE}${endpoint.startsWith('/') ? '' : '/'}${endpoint}`;
-      const headers = { ...(options.headers || {}) };
-
-      // Set Content-Type for JSON body unless explicitly specified or body is FormData/Blob
-      if (options.body && typeof options.body === 'string' && !headers['Content-Type']) {
-        headers['Content-Type'] = 'application/json';
-      }
-
-      // Determine authorization token: explicit option > adminToken for admin/export > userToken
-      let token = options.token;
-      if (!token) {
-        if (endpoint.includes('admin') || endpoint.includes('export')) {
-          token = localStorage.getItem('adminToken');
-        } else {
-          token = localStorage.getItem('userToken');
-        }
-      }
-
-      if (token && !headers['Authorization']) {
-        headers['Authorization'] = `Bearer ${token}`;
-      }
-
-      return await fetch(url, { ...options, headers });
-    }
-
-    /**
-     * Minimal Toast Notification System
-     */
-    function showToast(message, type = 'info') {
-      const container = document.getElementById('toast-container');
-      if (!container) return;
-
-      const toast = document.createElement('div');
-      toast.className = `toast toast-${type}`;
-
-      let iconSvg = '';
-      if (type === 'success') {
-        iconSvg = `<svg class="toast-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
-          <path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"/>
-        </svg>`;
-      } else if (type === 'error') {
-        iconSvg = `<svg class="toast-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
-          <circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/>
-        </svg>`;
-      } else {
-        iconSvg = `<svg class="toast-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
-          <circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/>
-        </svg>`;
-      }
-
-      toast.innerHTML = `
-        ${iconSvg}
-        <span class="toast-text">${message}</span>
-        <button class="toast-close" type="button" aria-label="بستن">&times;</button>
-      `;
-
-      toast.querySelector('.toast-close').addEventListener('click', () => {
-        toast.classList.remove('toast-show');
-        toast.classList.add('toast-hide');
-        setTimeout(() => toast.remove(), 250);
-      });
-
-      container.appendChild(toast);
-
-      requestAnimationFrame(() => {
-        toast.classList.add('toast-show');
-      });
-
-      setTimeout(() => {
-        if (toast.parentElement) {
-          toast.classList.remove('toast-show');
-          toast.classList.add('toast-hide');
-          setTimeout(() => toast.remove(), 250);
-        }
-      }, 3000);
-    }
-
-    /**
-     * Inline Form Error Helpers
-     */
-    function showInlineError(boxEl, msgEl, message) {
-      if (msgEl) msgEl.textContent = message;
-      if (boxEl) boxEl.classList.add('show');
-    }
-
-    function clearInlineError(boxEl) {
-      if (boxEl) boxEl.classList.remove('show');
-    }
-
-    /**
-     * Updates Navigation and Section Visibility according to localStorage Auth state
-     */
-    function updateAuthState() {
-      const navAuth = document.getElementById('nav-auth');
-      const adminPanel = document.getElementById('admin-panel');
-      const signupFormContainer = document.getElementById('signup-form-container');
-      const signupRegisteredBox = document.getElementById('signup-registered-box');
-
-      const userToken = localStorage.getItem('userToken');
-      const adminToken = localStorage.getItem('adminToken');
-
-      if (!navAuth) return;
-      navAuth.innerHTML = '';
-
-      if (adminToken) {
-        // Admin state: show panel link + logout
-        const panelLink = document.createElement('a');
-        panelLink.href = '#admin-panel';
-        panelLink.className = 'btn-nav-primary';
-        panelLink.textContent = 'پنل مدیریت';
-
-        const logoutBtn = document.createElement('button');
-        logoutBtn.type = 'button';
-        logoutBtn.className = 'btn-logout';
-        logoutBtn.textContent = 'خروج';
-        logoutBtn.addEventListener('click', logout);
-
-        navAuth.appendChild(panelLink);
-        navAuth.appendChild(logoutBtn);
-
-        if (adminPanel) adminPanel.classList.add('show');
-      } else if (userToken) {
-        // Registered User state: show badge + logout
-        const badge = document.createElement('div');
-        badge.className = 'badge-user-active';
-        badge.innerHTML = `<span class="badge-dot"></span><span>خوش آمدید (ثبت‌نام شده)</span>`;
-
-        const logoutBtn = document.createElement('button');
-        logoutBtn.type = 'button';
-        logoutBtn.className = 'btn-logout';
-        logoutBtn.textContent = 'خروج';
-        logoutBtn.addEventListener('click', logout);
-
-        navAuth.appendChild(badge);
-        navAuth.appendChild(logoutBtn);
-
-        if (adminPanel) adminPanel.classList.remove('show');
-      } else {
-        // Logged-out state: show Register & Admin Login buttons
-        const signupBtn = document.createElement('a');
-        signupBtn.href = '#signup';
-        signupBtn.className = 'btn-nav-primary';
-        signupBtn.textContent = 'ثبت‌نام';
-
-        const adminLoginBtn = document.createElement('a');
-        adminLoginBtn.href = '#admin-login-section';
-        adminLoginBtn.className = 'btn-nav-ghost';
-        adminLoginBtn.textContent = 'ورود مدیران';
-
-        navAuth.appendChild(signupBtn);
-        navAuth.appendChild(adminLoginBtn);
-
-        if (adminPanel) adminPanel.classList.remove('show');
-      }
-
-      // Handle sign-up form view if user is already registered
-      if (userToken) {
-        if (signupFormContainer) signupFormContainer.style.display = 'none';
-        if (signupRegisteredBox) signupRegisteredBox.classList.add('show');
-      } else {
-        if (signupFormContainer) signupFormContainer.style.display = 'block';
-        if (signupRegisteredBox) signupRegisteredBox.classList.remove('show');
-      }
-    }
-
-    /**
-     * Clears all session tokens and resets UI
-     */
-    function logout() {
-      localStorage.removeItem('userToken');
-      localStorage.removeItem('adminToken');
-      updateAuthState();
-      showToast('با موفقیت از سیستم خارج شدید.', 'info');
-    }
-
-    /**
-     * Validates stored tokens against real backend on load
-     */
-    async function validateSessions() {
-      const userToken = localStorage.getItem('userToken');
-      const adminToken = localStorage.getItem('adminToken');
-
-      if (userToken) {
-        try {
-          const res = await apiFetch('/auth/validate/user', {
-            method: 'GET',
-            token: userToken
-          });
-          if (!res.ok) {
-            localStorage.removeItem('userToken');
-          }
-        } catch {
-          // If network is offline, don't drop token prematurely
-        }
-      }
-
-      if (adminToken) {
-        try {
-          const res = await apiFetch('/auth/validate/admin', {
-            method: 'GET',
-            token: adminToken
-          });
-          if (!res.ok) {
-            localStorage.removeItem('adminToken');
-          }
-        } catch {
-          // Network offline
-        }
-      }
-
-      updateAuthState();
-    }
-
-    /* =========================================
-       DOM Event Listeners & Form Submissions
-       ========================================= */
-    document.addEventListener('DOMContentLoaded', () => {
-      // 1. Session verification
-      validateSessions();
-
-      // 2. Re-register button handler (logs out user so new registration can be filled)
-      const btnReRegister = document.getElementById('btn-re-register');
-      if (btnReRegister) {
-        btnReRegister.addEventListener('click', () => {
-          localStorage.removeItem('userToken');
-          updateAuthState();
-          const signupForm = document.getElementById('signup-form');
-          if (signupForm) signupForm.reset();
-        });
-      }
-
-      // 3. Mobile Navigation Toggle
-      const mobileToggle = document.getElementById('mobile-toggle');
-      const navContent = document.getElementById('nav-content');
-      if (mobileToggle && navContent) {
-        mobileToggle.addEventListener('click', () => {
-          const isOpen = navContent.classList.toggle('mobile-open');
-          mobileToggle.setAttribute('aria-expanded', String(isOpen));
-        });
-
-        // Close mobile menu when an anchor link is clicked
-        navContent.querySelectorAll('a').forEach(link => {
-          link.addEventListener('click', () => {
-            navContent.classList.remove('mobile-open');
-            mobileToggle.setAttribute('aria-expanded', 'false');
-          });
-        });
-      }
-
-      // 4. Sticky Navbar Styling on Scroll
-      const navbar = document.getElementById('navbar');
-      window.addEventListener('scroll', () => {
-        if (window.scrollY > 30) {
-          navbar.classList.add('nav-scrolled');
-        } else {
-          navbar.classList.remove('nav-scrolled');
-        }
-      }, { passive: true });
-
-      // 5. Scroll Animations via IntersectionObserver
-      const observer = new IntersectionObserver((entries, obs) => {
-        entries.forEach(entry => {
-          if (entry.isIntersecting) {
-            entry.target.classList.add('revealed');
-            obs.unobserve(entry.target);
-          }
-        });
-      }, { threshold: 0.08 });
-
-      document.querySelectorAll('.reveal').forEach(el => observer.observe(el));
-
-      // 6. User Sign-Up Form Handling (POST /auth/user)
-      const signupForm = document.getElementById('signup-form');
-      const signupBtn = document.getElementById('signup-btn');
-      const signupErrorBox = document.getElementById('signup-error-box');
-      const signupErrorMsg = document.getElementById('signup-error-msg');
-      const ssnInput = document.getElementById('ssn');
-      const phoneInput = document.getElementById('phone');
-      const fullNameInput = document.getElementById('fullName');
-
-      // Live digit conversion on input
-      if (ssnInput) {
-        ssnInput.addEventListener('input', () => {
-          ssnInput.value = toEnglishDigits(ssnInput.value).replace(/\D/g, '');
-        });
-      }
-
-      if (phoneInput) {
-        phoneInput.addEventListener('input', () => {
-          phoneInput.value = toEnglishDigits(phoneInput.value).replace(/[^\d+]/g, '');
-        });
-      }
-
-      if (signupForm) {
-        signupForm.addEventListener('submit', async (e) => {
-          e.preventDefault();
-          clearInlineError(signupErrorBox);
-
-          const fullName = fullNameInput.value.trim();
-          let ssn = toEnglishDigits(ssnInput.value.trim());
-          let phone = toEnglishDigits(phoneInput.value.trim());
-
-          // Client-side validations
-          if (!fullName) {
-            showInlineError(signupErrorBox, signupErrorMsg, 'لطفاً نام و نام خانوادگی خود را وارد نمایید.');
-            fullNameInput.focus();
-            return;
-          }
-
-          if (!ssn || !/^\d{10}$/.test(ssn)) {
-            showInlineError(signupErrorBox, signupErrorMsg, 'کد ملی باید یک عدد ۱۰ رقمی باشد.');
-            ssnInput.focus();
-            return;
-          }
-
-          // Iranian phone number validation (09xxxxxxxxx or +989xxxxxxxxx)
-          const phoneRegex = /^(\+98|0)9\d{9}$/;
-          // Normalize leading 9 to 09 if typed without 0
-          if (/^9\d{9}$/.test(phone)) {
-            phone = '0' + phone;
-          }
-
-          if (!phoneRegex.test(phone)) {
-            showInlineError(signupErrorBox, signupErrorMsg, 'شماره تلفن همراه باید معتبر باشد (مانند: ۰۹۱۱xxxxxxx).');
-            phoneInput.focus();
-            return;
-          }
-
-          // Set Loading State
-          signupBtn.disabled = true;
-          signupBtn.classList.add('btn-loading');
-
-          try {
-            const res = await apiFetch('/auth/user', {
-              method: 'POST',
-              body: JSON.stringify({ ssn, fullName, phone })
-            });
-
-            const data = await res.json().catch(() => ({}));
-
-            if (res.status === 201 && data.token) {
-              localStorage.setItem('userToken', data.token);
-              showToast('ثبت‌نام شما با موفقیت انجام شد!', 'success');
-              updateAuthState();
-              signupForm.reset();
-            } else if (res.status === 409) {
-              showInlineError(signupErrorBox, signupErrorMsg, 'این کد ملی یا شماره همراه قبلاً ثبت‌نام شده است.');
-            } else {
-              const message = Array.isArray(data.message) 
-                ? data.message.join('، ') 
-                : (data.message || 'خطا در ثبت‌نام. لطفاً اطلاعات را بررسی کرده و مجدداً تلاش کنید.');
-              showInlineError(signupErrorBox, signupErrorMsg, message);
-            }
-          } catch (err) {
-            showInlineError(signupErrorBox, signupErrorMsg, 'عدم برقراری ارتباط با سرور. لطفاً اتصال اینترنت یا سرور را بررسی نمایید.');
-          } finally {
-            signupBtn.disabled = false;
-            signupBtn.classList.remove('btn-loading');
-          }
-        });
-      }
-
-      // 7. Admin Login Form Handling (POST /auth/admin / POST /auth/login/admin)
-      const adminLoginForm = document.getElementById('admin-login-form');
-      const adminLoginBtn = document.getElementById('admin-login-btn');
-      const adminErrorBox = document.getElementById('admin-error-box');
-      const adminErrorMsg = document.getElementById('admin-error-msg');
-      const adminUsernameInput = document.getElementById('admin-username');
-      const adminPasswordInput = document.getElementById('admin-password');
-
-      if (adminLoginForm) {
-        adminLoginForm.addEventListener('submit', async (e) => {
-          e.preventDefault();
-          clearInlineError(adminErrorBox);
-
-          const username = toEnglishDigits(adminUsernameInput.value.trim());
-          const password = adminPasswordInput.value;
-
-          if (!username) {
-            showInlineError(adminErrorBox, adminErrorMsg, 'لطفاً نام کاربری مدیر را وارد نمایید.');
-            adminUsernameInput.focus();
-            return;
-          }
-
-          if (!password || password.length < 8) {
-            showInlineError(adminErrorBox, adminErrorMsg, 'رمز عبور باید حداقل ۸ کاراکتر باشد.');
-            adminPasswordInput.focus();
-            return;
-          }
-
-          adminLoginBtn.disabled = true;
-          adminLoginBtn.classList.add('btn-loading');
-
-          try {
-            // First attempt POST /auth/admin as required
-            let res = await apiFetch('/auth/admin', {
-              method: 'POST',
-              body: JSON.stringify({ username, password })
-            });
-
-            let data = await res.json().catch(() => ({}));
-
-            // If admin already exists in database (409), attempt /auth/login/admin
-            if (res.status === 409 || data.code === 'ADMIN_ALREADY_EXISTS') {
-              const loginRes = await apiFetch('/auth/login/admin', {
-                method: 'POST',
-                body: JSON.stringify({ username, password })
-              });
-              const loginData = await loginRes.json().catch(() => ({}));
-
-              if (loginRes.ok && loginData.token) {
-                res = loginRes;
-                data = loginData;
-              } else {
-                const errMsg = Array.isArray(loginData.message)
-                  ? loginData.message.join('، ')
-                  : (loginData.message || 'نام کاربری یا رمز عبور اشتباه است.');
-                showInlineError(adminErrorBox, adminErrorMsg, errMsg);
-                return;
-              }
-            }
-
-            if ((res.status === 201 || res.status === 200) && data.token) {
-              localStorage.setItem('adminToken', data.token);
-              showToast('ورود مدیران با موفقیت انجام شد. خوش آمدید!', 'success');
-              updateAuthState();
-              adminLoginForm.reset();
-
-              // Smoothly reveal and scroll to Admin Panel
-              const adminPanel = document.getElementById('admin-panel');
-              if (adminPanel) {
-                adminPanel.scrollIntoView({ behavior: 'smooth' });
-              }
-            } else {
-              const message = Array.isArray(data.message)
-                ? data.message.join('، ')
-                : (data.message || 'خطا در احراز هویت مدیر.');
-              showInlineError(adminErrorBox, adminErrorMsg, message);
-            }
-          } catch (err) {
-            showInlineError(adminErrorBox, adminErrorMsg, 'خطا در ارتباط با سرور.');
-          } finally {
-            adminLoginBtn.disabled = false;
-            adminLoginBtn.classList.remove('btn-loading');
-          }
-        });
-      }
-
-      // 8. Admin Panel Excel Export (GET /export)
-      const btnExportExcel = document.getElementById('btn-export-excel');
-      if (btnExportExcel) {
-        btnExportExcel.addEventListener('click', async () => {
-          const adminToken = localStorage.getItem('adminToken');
-          if (!adminToken) {
-            showToast('لطفاً ابتدا به عنوان مدیر وارد شوید.', 'error');
-            updateAuthState();
-            return;
-          }
-
-          btnExportExcel.disabled = true;
-          btnExportExcel.classList.add('btn-loading');
-
-          try {
-            const res = await apiFetch('/export', {
-              method: 'GET',
-              token: adminToken
-            });
-
-            // Handle session expiration
-            if (res.status === 401 || res.status === 403) {
-              localStorage.removeItem('adminToken');
-              updateAuthState();
-              showToast('نشست کاربری منقضی شده است. لطفاً مجدداً وارد شوید.', 'error');
-              return;
-            }
-
-            if (!res.ok) {
-              const err = await res.json().catch(() => ({}));
-              showToast(err.message || 'خطا در دریافت لیست شرکت‌کنندگان.', 'error');
-              return;
-            }
-
-            // Streamable file blob handling
-            const blob = await res.blob();
-            const downloadUrl = window.URL.createObjectURL(blob);
-            const a = document.createElement('a');
-            a.href = downloadUrl;
-            a.download = 'users.xlsx';
-            document.body.appendChild(a);
-            a.click();
-            document.body.removeChild(a);
-            window.URL.revokeObjectURL(downloadUrl);
-
-            showToast('فایل اکسل شرکت‌کنندگان با موفقیت دریافت شد.', 'success');
-          } catch (err) {
-            showToast('خطا در دریافت فایل اکسل از سرور.', 'error');
-          } finally {
-            btnExportExcel.disabled = false;
-            btnExportExcel.classList.remove('btn-loading');
-          }
-        });
-      }
-    });
-  </script>
 </body>
 </html>
