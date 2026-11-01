@@ -5,6 +5,7 @@ Welcome to **AgenticBots_ServiceBase**. This file serves as the single source of
 ---
 
 ## ⚠️ CRITICAL AGENT DIRECTIVES
+*DO NOT COMMIT OR PUSH ANYTHING ON GITHUB. ACT AS SENIOR BACKEND EVELOPER. FOLLOW THE PROJECT STRUCTURE
 
 ### 1. Mandatory Nest CLI Usage
 **ALWAYS use the Nest CLI (`npx nest g <schematic> <name>`) when generating new components, modules, services, controllers, or resources.**
@@ -97,6 +98,20 @@ This project is a scalable backend service built on the **NestJS 11** framework 
    - **`AuthTestModule` (`src/auth-test/`)**: sample `admin/me` and `user/me` routes for verifying auth wiring; remove it from `AppModule` for production if not needed.
    - **Swagger Integration**: Protected controller routes must be annotated with `@ApiBearerAuth()` and `@UseGuards(AdminGuard | UserGuard)`.
 
+5. **News & Media Layer (`src/news/`)**:
+   - **Models**: `News` (title, description) and `NewsImage` (path, newsId) managed via `DbContextService`.
+   - **Local Storage**: Uploaded news images are stored on disk in `/assets/images/` at the project root. Static file serving is mounted in `main.ts` with prefix `/assets/` (`app.useStaticAssets(assetsDir, { prefix: '/assets/' })`), allowing images to be retrieved via `/assets/images/<filename>`.
+   - **Admin CRUD Authorization**:
+     - `POST /news`: Create news with optional image uploads (`AdminAuthGuard`).
+     - `PATCH /news/:id`: Update news and optionally attach new images (`AdminAuthGuard`).
+     - `DELETE /news/:id`: Delete news and purge all associated physical image files (`AdminAuthGuard`).
+     - `POST /news/:id/images`: Upload and append images to an existing news article (`AdminAuthGuard`).
+     - `DELETE /news/:id/images/:imageId`: Delete a specific image record and remove the file from disk (`AdminAuthGuard`).
+   - **Public Read Endpoints**: `GET /news` and `GET /news/:id` are open for clients and include associated images.
+   - **File Safety & Lifecycle**:
+     - Multer configuration (`src/news/news-storage.ts`) validates image MIME types, restricts file sizes (10MB limit), and uses crypto-random UUIDs.
+     - On creation or update failures, newly uploaded files are cleaned up to prevent orphaned files on disk.
+
 ---
 
 ## 📁 Repository Structure
@@ -104,6 +119,10 @@ This project is a scalable backend service built on the **NestJS 11** framework 
 ```
 .
 ├── .env.example              # Template for required environment variables
+├── assets/                   # Static runtime storage (git-ignored)
+│   ├── excel/                # Generated excel files
+│   └── images/               # Uploaded news images
+├── frontend/                 # Static frontend client files
 ├── nest-cli.json             # NestJS CLI configuration
 ├── package.json              # Project scripts and dependencies
 ├── prisma.config.ts          # Prisma v7 configuration (migrations, schema, datasource)
@@ -125,7 +144,15 @@ This project is a scalable backend service built on the **NestJS 11** framework 
 │   ├── db-context/           # Database access module
 │   │   ├── db-context.module.ts  # Global module
 │   │   └── db-context.service.ts # Owns PrismaClient (`db`) + lifecycle
-│   └── generated/prisma/     # Generated Prisma client (git-ignored)
+│   ├── excel/                # Excel export module
+│   ├── generated/prisma/     # Generated Prisma client (git-ignored)
+│   └── news/                 # News & media module (Admin CRUD + public read)
+│       ├── dto/              # CreateNewsDto, UpdateNewsDto
+│       ├── entities/         # NewsEntity, NewsImageEntity
+│       ├── news-storage.ts   # Multer disk storage & file cleanup helper
+│       ├── news.controller.ts# REST endpoints (Admin CRUD + public read)
+│       ├── news.module.ts    # News feature module
+│       └── news.service.ts   # Business logic & db operations
 └── test/                     # End-to-end tests
     ├── app.e2e-spec.ts
     └── jest-e2e.json

@@ -1,5 +1,5 @@
 import 'reflect-metadata';
-import { existsSync } from 'node:fs';
+import { existsSync, mkdirSync } from 'node:fs';
 if (existsSync('.env')) process.loadEnvFile();
 
 import { NestFactory } from '@nestjs/core';
@@ -24,6 +24,19 @@ async function bootstrap() {
 
   // Serve static frontend files from /frontend
   app.useStaticAssets(join(__dirname, '..', 'frontend'));
+
+  // Serve uploaded static assets (news images, etc.) from /assets
+  const assetsDir = join(process.cwd(), 'assets');
+  if (!existsSync(assetsDir)) {
+    mkdirSync(assetsDir, { recursive: true });
+  }
+  const imagesDir = join(assetsDir, 'images');
+  if (!existsSync(imagesDir)) {
+    mkdirSync(imagesDir, { recursive: true });
+  }
+  app.useStaticAssets(assetsDir, {
+    prefix: '/assets/',
+  });
 
   //swagger-config
   const swaggerConfig = new DocumentBuilder()
