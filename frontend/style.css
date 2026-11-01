@@ -895,6 +895,18 @@ button {
   gap: 0.45rem;
 }
 
+.form-row-3 {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 1rem;
+}
+
+@media (min-width: 640px) {
+  .form-row-3 {
+    grid-template-columns: repeat(3, 1fr);
+  }
+}
+
 .form-label {
   font-size: 0.9rem;
   font-weight: 600;

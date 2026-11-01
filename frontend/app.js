@@ -427,6 +427,9 @@ document.addEventListener('DOMContentLoaded', () => {
   const ssnInput = document.getElementById('ssn');
   const phoneInput = document.getElementById('phone');
   const fullNameInput = document.getElementById('fullName');
+  const childCountInput = document.getElementById('childCount');
+  const teenageCountInput = document.getElementById('teenageCount');
+  const adultCountInput = document.getElementById('adultCount');
 
   // Live Persian-to-English digit conversion
   if (ssnInput) {
@@ -475,12 +478,16 @@ document.addEventListener('DOMContentLoaded', () => {
         return;
       }
 
+      const childCount = childCountInput ? Math.max(0, parseInt(toEnglishDigits(childCountInput.value) || '0', 10) || 0) : 0;
+      const teenageCount = teenageCountInput ? Math.max(0, parseInt(toEnglishDigits(teenageCountInput.value) || '0', 10) || 0) : 0;
+      const adultCount = adultCountInput ? Math.max(0, parseInt(toEnglishDigits(adultCountInput.value) || '0', 10) || 0) : 0;
+
       setLoading(signupBtn, true);
 
       try {
         const res = await apiFetch('/auth/user', {
           method: 'POST',
-          body: JSON.stringify({ ssn, fullName, phone })
+          body: JSON.stringify({ ssn, fullName, phone, childCount, teenageCount, adultCount })
         });
 
         const data = await res.json().catch(() => ({}));
