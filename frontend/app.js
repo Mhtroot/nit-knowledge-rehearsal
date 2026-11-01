@@ -407,11 +407,172 @@ function closeNewsReader() {
 }
 
 /**
- * Load Public News Grid (GET /news)
+ * App-Like In-Slide Multi-Image Gallery Component
+ */
+function createInSlideGalleryElement(images, articleTitle) {
+  const galleryWrap = document.createElement('div');
+  galleryWrap.className = 'mini-gallery';
+
+  const imageUrls = (images && images.length > 0)
+    ? images.map(img => resolveImageUrl(img.path))
+    : ['assets/banner-wide.jpg'];
+
+  let currentIndex = 0;
+
+  const viewport = document.createElement('div');
+  viewport.className = 'mini-gallery-viewport';
+  viewport.title = 'برای مشاهده در کیفیت اصلی کلیک کنید';
+
+  const imgEl = document.createElement('img');
+  imgEl.className = 'mini-gallery-img';
+  imgEl.src = imageUrls[0];
+  imgEl.alt = articleTitle;
+  viewport.appendChild(imgEl);
+
+  if (imageUrls.length > 1) {
+    const counterBadge = document.createElement('span');
+    counterBadge.className = 'gallery-counter-badge';
+    counterBadge.textContent = `۱ از ${imageUrls.length}`;
+    viewport.appendChild(counterBadge);
+
+    const btnPrev = document.createElement('button');
+    btnPrev.type = 'button';
+    btnPrev.className = 'gallery-nav-btn gallery-btn-prev';
+    btnPrev.innerHTML = '‹';
+    btnPrev.title = 'عکس قبلی';
+    btnPrev.setAttribute('aria-label', 'عکس قبلی');
+
+    const btnNext = document.createElement('button');
+    btnNext.type = 'button';
+    btnNext.className = 'gallery-nav-btn gallery-btn-next';
+    btnNext.innerHTML = '›';
+    btnNext.title = 'عکس بعدی';
+    btnNext.setAttribute('aria-label', 'عکس بعدی');
+
+    viewport.appendChild(btnPrev);
+    viewport.appendChild(btnNext);
+
+    const thumbsWrap = document.createElement('div');
+    thumbsWrap.className = 'mini-gallery-thumbs';
+
+    const thumbEls = imageUrls.map((url, idx) => {
+      const thumb = document.createElement('img');
+      thumb.className = `mini-thumb ${idx === 0 ? 'active' : ''}`;
+      thumb.src = url;
+      thumb.alt = `بندانگشتی ${idx + 1}`;
+      thumb.addEventListener('click', (e) => {
+        e.stopPropagation();
+        setGalleryIndex(idx);
+      });
+      thumbsWrap.appendChild(thumb);
+      return thumb;
+    });
+
+    function setGalleryIndex(index) {
+      if (index < 0) index = imageUrls.length - 1;
+      if (index >= imageUrls.length) index = 0;
+      currentIndex = index;
+
+      imgEl.style.opacity = '0.35';
+      setTimeout(() => {
+        imgEl.src = imageUrls[currentIndex];
+        imgEl.style.opacity = '1';
+      }, 120);
+
+      counterBadge.textContent = `${currentIndex + 1} از ${imageUrls.length}`;
+      thumbEls.forEach((th, i) => {
+        th.classList.toggle('active', i === currentIndex);
+      });
+    }
+
+    btnPrev.addEventListener('click', (e) => {
+      e.stopPropagation();
+      setGalleryIndex(currentIndex - 1);
+    });
+
+    btnNext.addEventListener('click', (e) => {
+      e.stopPropagation();
+      setGalleryIndex(currentIndex + 1);
+    });
+
+    let touchStartX = 0;
+    viewport.addEventListener('touchstart', (e) => {
+      touchStartX = e.changedTouches[0].screenX;
+    }, { passive: true });
+
+    viewport.addEventListener('touchend', (e) => {
+      const touchEndX = e.changedTouches[0].screenX;
+      const diff = touchStartX - touchEndX;
+      if (Math.abs(diff) > 35) {
+        if (diff > 0) setGalleryIndex(currentIndex + 1);
+        else setGalleryIndex(currentIndex - 1);
+      }
+    }, { passive: true });
+
+    galleryWrap.appendChild(viewport);
+    galleryWrap.appendChild(thumbsWrap);
+  } else {
+    galleryWrap.appendChild(viewport);
+  }
+
+  viewport.addEventListener('click', () => {
+    openLightbox(imageUrls[currentIndex], `${articleTitle} ${imageUrls.length > 1 ? `(تصویر ${currentIndex + 1} از ${imageUrls.length})` : ''}`);
+  });
+
+  return galleryWrap;
+}
+
+/**
+ * Landing Page News Slider State & Controls
+ */
+let currentSlideIndex = 0;
+let totalNewsSlides = 0;
+let sliderAutoplayInterval = null;
+
+function goToSlide(index) {
+  const track = document.getElementById('news-slider-track');
+  const dots = document.querySelectorAll('#slider-dots .slider-dot');
+  if (!track || totalNewsSlides === 0) return;
+
+  if (index < 0) index = totalNewsSlides - 1;
+  if (index >= totalNewsSlides) index = 0;
+  currentSlideIndex = index;
+
+  // LTR track offset ensures seamless cross-browser consistency:
+  track.style.transform = `translateX(-${currentSlideIndex * 100}%)`;
+
+  dots.forEach((dot, idx) => {
+    dot.classList.toggle('active', idx === currentSlideIndex);
+  });
+}
+
+function startSliderAutoplay() {
+  stopSliderAutoplay();
+  if (totalNewsSlides > 1) {
+    sliderAutoplayInterval = setInterval(() => {
+      goToSlide(currentSlideIndex + 1);
+    }, 6000);
+  }
+}
+
+function stopSliderAutoplay() {
+  if (sliderAutoplayInterval) {
+    clearInterval(sliderAutoplayInterval);
+    sliderAutoplayInterval = null;
+  }
+}
+
+/**
+ * Load Public News Slider (GET /news)
  */
 async function loadPublicNews() {
-  const grid = document.getElementById('public-news-grid');
-  if (!grid) return;
+  const track = document.getElementById('news-slider-track');
+  const dotsContainer = document.getElementById('slider-dots');
+  const sliderPrevBtn = document.getElementById('slider-arrow-prev');
+  const sliderNextBtn = document.getElementById('slider-arrow-next');
+  const sliderContainer = document.getElementById('news-slider-container');
+
+  if (!track) return;
 
   try {
     const res = await apiFetch('/news', { method: 'GET' });
@@ -422,68 +583,154 @@ async function loadPublicNews() {
     const newsList = await res.json();
 
     if (!Array.isArray(newsList) || newsList.length === 0) {
-      grid.innerHTML = `
-        <div class="news-empty-state">
-          <div class="news-empty-icon" aria-hidden="true">📢</div>
-          <h3 class="news-empty-title">به زودی؛ اعلام جزئیات و برنامه‌های شب علم</h3>
-          <p class="news-empty-desc">
-            اطلاعیه‌های رسمی، فهرست دقیق سخنرانان، کارگاه‌ها و محل استقرار غرفه‌های علمی دانشگاه صنعتی نوشیروانی بابل به زودی در این بخش منتشر خواهد شد.
-          </p>
+      track.innerHTML = `
+        <div class="news-slide">
+          <div class="news-empty-state" style="margin: 2rem;">
+            <div class="news-empty-icon" aria-hidden="true">📢</div>
+            <h3 class="news-empty-title">به زودی؛ اعلام جزئیات و برنامه‌های شب علم</h3>
+            <p class="news-empty-desc">
+              اطلاعیه‌های رسمی، فهرست دقیق سخنرانان، کارگاه‌ها و محل استقرار غرفه‌های علمی دانشگاه صنعتی نوشیروانی بابل به زودی در این بخش منتشر خواهد شد.
+            </p>
+          </div>
         </div>
       `;
+      if (dotsContainer) dotsContainer.innerHTML = '';
+      if (sliderPrevBtn) sliderPrevBtn.style.display = 'none';
+      if (sliderNextBtn) sliderNextBtn.style.display = 'none';
+      totalNewsSlides = 0;
       return;
     }
 
-    grid.innerHTML = '';
-    newsList.forEach((article) => {
-      const card = document.createElement('article');
-      card.className = 'news-card reveal';
+    track.innerHTML = '';
+    if (dotsContainer) dotsContainer.innerHTML = '';
+    totalNewsSlides = newsList.length;
 
-      const hasImages = article.images && article.images.length > 0;
-      const coverUrl = hasImages ? resolveImageUrl(article.images[0].path) : 'assets/banner-wide.jpg';
-      const imageCountBadge = hasImages && article.images.length > 1
-        ? `<div class="news-img-count-badge">📷 ${article.images.length} تصویر</div>`
-        : '';
+    if (sliderPrevBtn) sliderPrevBtn.style.display = totalNewsSlides > 1 ? 'grid' : 'none';
+    if (sliderNextBtn) sliderNextBtn.style.display = totalNewsSlides > 1 ? 'grid' : 'none';
 
-      card.innerHTML = `
-        <div class="news-card-cover-wrap" role="button" tabindex="0">
-          <img src="${coverUrl}" alt="${article.title}" class="news-card-cover" loading="lazy">
-          ${imageCountBadge}
+    newsList.forEach((article, idx) => {
+      const slide = document.createElement('div');
+      slide.className = 'news-slide';
+
+      const inner = document.createElement('div');
+      inner.className = 'news-slide-inner';
+
+      // Content area (Right side in RTL desktop)
+      const contentEl = document.createElement('div');
+      contentEl.className = 'news-slide-content';
+
+      contentEl.innerHTML = `
+        <div>
+          <div class="news-slide-meta">
+            <span class="section-tag" style="margin: 0;">اطلاعیه رسمی ${idx + 1} از ${newsList.length}</span>
+            <span style="font-size: 0.78rem; color: var(--text-muted);">شناسه: ${article.id}</span>
+          </div>
+          <h3 class="news-slide-title">${article.title}</h3>
+          <p class="news-slide-desc">${article.description}</p>
         </div>
-        <div class="news-card-body">
-          <h3 class="news-card-title">${article.title}</h3>
-          <p class="news-card-desc">${article.description}</p>
+        <div class="news-slide-actions">
           <button type="button" class="btn-read-news">
-            <span>مشاهده کامل خبر</span>
-            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
+            <span>مطالعه کامل خبر</span>
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" aria-hidden="true">
               <path stroke-linecap="round" stroke-linejoin="round" d="M19 12H5M12 19l-7-7 7-7"/>
             </svg>
           </button>
+          <a href="news.html?id=${article.id}" class="btn-slide-archive">
+            <span>مشاهده در آرشیو مقالات ↗</span>
+          </a>
         </div>
       `;
 
-      // Click on cover or button opens full reader
-      card.querySelector('.news-card-cover-wrap').addEventListener('click', () => openNewsReader(article));
-      card.querySelector('.btn-read-news').addEventListener('click', () => openNewsReader(article));
+      contentEl.querySelector('.btn-read-news').addEventListener('click', () => {
+        openNewsReader(article);
+      });
 
-      grid.appendChild(card);
+      // Media area (Left side in RTL desktop)
+      const mediaEl = document.createElement('div');
+      mediaEl.className = 'news-slide-media';
+      const gallery = createInSlideGalleryElement(article.images, article.title);
+      mediaEl.appendChild(gallery);
+
+      inner.appendChild(contentEl);
+      inner.appendChild(mediaEl);
+      slide.appendChild(inner);
+      track.appendChild(slide);
+
+      // Dot indicator
+      if (dotsContainer && totalNewsSlides > 1) {
+        const dot = document.createElement('button');
+        dot.type = 'button';
+        dot.className = `slider-dot ${idx === 0 ? 'active' : ''}`;
+        dot.setAttribute('aria-label', `رفتن به خبر ${idx + 1}`);
+        dot.addEventListener('click', () => {
+          goToSlide(idx);
+          stopSliderAutoplay();
+          startSliderAutoplay();
+        });
+        dotsContainer.appendChild(dot);
+      }
     });
 
-    // Trigger scroll reveal for newly added elements
-    document.querySelectorAll('#public-news-grid .reveal').forEach(el => {
-      el.classList.add('revealed');
-    });
+    // Reset slide position
+    goToSlide(0);
+    startSliderAutoplay();
+
+    // Arrows event listeners
+    if (sliderPrevBtn) {
+      sliderPrevBtn.onclick = () => {
+        goToSlide(currentSlideIndex - 1);
+        stopSliderAutoplay();
+        startSliderAutoplay();
+      };
+    }
+    if (sliderNextBtn) {
+      sliderNextBtn.onclick = () => {
+        goToSlide(currentSlideIndex + 1);
+        stopSliderAutoplay();
+        startSliderAutoplay();
+      };
+    }
+
+    // Touch swipe and Hover pause on slider container
+    if (sliderContainer) {
+      sliderContainer.onmouseenter = stopSliderAutoplay;
+      sliderContainer.onmouseleave = startSliderAutoplay;
+
+      let touchStartX = 0;
+      sliderContainer.addEventListener('touchstart', (e) => {
+        stopSliderAutoplay();
+        touchStartX = e.changedTouches[0].screenX;
+      }, { passive: true });
+
+      sliderContainer.addEventListener('touchend', (e) => {
+        startSliderAutoplay();
+        const touchEndX = e.changedTouches[0].screenX;
+        const diff = touchStartX - touchEndX;
+        // In RTL, left swipe moves to next slide
+        if (diff > 45) {
+          goToSlide(currentSlideIndex + 1);
+        } else if (diff < -45) {
+          goToSlide(currentSlideIndex - 1);
+        }
+      }, { passive: true });
+    }
 
   } catch (err) {
-    grid.innerHTML = `
-      <div class="news-empty-state">
-        <div class="news-empty-icon" aria-hidden="true">📢</div>
-        <h3 class="news-empty-title">به زودی؛ اعلام جزئیات و برنامه‌های شب علم</h3>
-        <p class="news-empty-desc">
-          اطلاعیه‌های رسمی، فهرست دقیق سخنرانان، کارگاه‌ها و محل استقرار غرفه‌های علمی دانشگاه صنعتی نوشیروانی بابل به زودی در این بخش قرار می‌گیرد.
-        </p>
+    track.innerHTML = `
+      <div class="news-slide">
+        <div class="news-empty-state" style="margin: 2rem;">
+          <div class="news-empty-icon" aria-hidden="true">📢</div>
+          <h3 class="news-empty-title">به زودی؛ اعلام جزئیات و برنامه‌های شب علم</h3>
+          <p class="news-empty-desc">
+            اطلاعیه‌های رسمی، فهرست دقیق سخنرانان، کارگاه‌ها و محل استقرار غرفه‌های علمی دانشگاه صنعتی نوشیروانی بابل به زودی در این بخش قرار می‌گیرد.
+          </p>
+        </div>
       </div>
     `;
+    if (dotsContainer) dotsContainer.innerHTML = '';
+    if (sliderPrevBtn) sliderPrevBtn.style.display = 'none';
+    if (sliderNextBtn) sliderNextBtn.style.display = 'none';
+    totalNewsSlides = 0;
   }
 }
 

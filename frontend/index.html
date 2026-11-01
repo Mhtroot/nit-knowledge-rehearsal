@@ -153,23 +153,57 @@
     </section>
 
     <!-- ========================================================================
-         3. Public News & Articles Section («اخبار و اطلاعیه‌ها»)
+         3. Public News Slider Section («اخبار و اطلاعیه‌ها»)
          ======================================================================== -->
     <section class="news-section" id="news">
       <div class="container">
-        <div class="section-header reveal">
-          <span class="section-tag">📰 تازه‌ترین رویدادها</span>
-          <h2 class="section-title">اخبار و اطلاعیه‌های شب علم</h2>
-          <p class="section-desc">تازه‌ترین گزارش‌ها، زمان‌بندی غرفه‌ها و اطلاعیه‌های رسمی دانشگاه صنعتی نوشیروانی بابل</p>
+        <div class="news-section-header-row reveal">
+          <div class="section-header-compact">
+            <span class="section-tag">📰 تازه‌ترین رویدادها</span>
+            <h2 class="section-title">آخرین اخبار و اطلاعیه‌های شب علم</h2>
+            <p class="section-desc">گزارش‌های زنده، اعلام نتایج غرفه‌ها و اطلاعیه‌های مهم دانشگاه صنعتی نوشیروانی بابل</p>
+          </div>
+          <a href="news.html" class="btn-all-news">
+            <span>مشاهده آرشیو کامل اخبار</span>
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" aria-hidden="true">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M19 12H5M12 19l-7-7 7-7"/>
+            </svg>
+          </a>
         </div>
 
-        <div class="news-grid" id="public-news-grid">
-          <!-- Populated dynamically via GET /news -->
-          <div class="news-loading-skeleton">
-            <div class="skeleton-card"></div>
-            <div class="skeleton-card"></div>
-            <div class="skeleton-card"></div>
+        <div class="news-slider-wrapper reveal">
+          <div class="news-slider-container" id="news-slider-container">
+            <div class="news-slider-track" id="news-slider-track">
+              <!-- Loading skeleton slide -->
+              <div class="news-slide">
+                <div class="news-slide-inner">
+                  <div class="news-slide-media" style="min-height: 320px;">
+                    <div class="skeleton-card" style="width: 100%; height: 100%; border: none; border-radius: 0;"></div>
+                  </div>
+                  <div class="news-slide-content">
+                    <div class="skeleton-card" style="height: 30px; width: 60%; margin-bottom: 1rem;"></div>
+                    <div class="skeleton-card" style="height: 80px; width: 100%; margin-bottom: 1rem;"></div>
+                    <div class="skeleton-card" style="height: 40px; width: 40%;"></div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Arrows -->
+            <button type="button" class="slider-arrow slider-arrow-prev" id="slider-arrow-prev" aria-label="خبر قبلی" title="خبر قبلی">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" aria-hidden="true">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M9 5l7 7-7 7"/>
+              </svg>
+            </button>
+            <button type="button" class="slider-arrow slider-arrow-next" id="slider-arrow-next" aria-label="خبر بعدی" title="خبر بعدی">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" aria-hidden="true">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M15 19l-7-7 7-7"/>
+              </svg>
+            </button>
           </div>
+
+          <!-- Slider Dots -->
+          <div class="slider-dots" id="slider-dots"></div>
         </div>
       </div>
     </section>

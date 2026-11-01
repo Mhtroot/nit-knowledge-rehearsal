@@ -1,0 +1,170 @@
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+  <meta name="description" content="آرشیو کامل اخبار، گزارش‌ها و اطلاعیه‌های رسمی رویداد شب علم دانشگاه صنعتی نوشیروانی بابل - ۱۲ آذرماه ۱۴۰۵">
+  <meta name="theme-color" content="#06080d">
+  <title>اخبار و مقالات رویداد | شب علم دانشگاه صنعتی نوشیروانی بابل</title>
+
+  <!-- Google Fonts: Vazirmatn -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Vazirmatn:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+
+  <!-- Shared Stylesheet -->
+  <link rel="stylesheet" href="style.css">
+
+  <!-- News Archive Logic (Deferred) -->
+  <script src="news.js" defer></script>
+</head>
+<body>
+
+  <!-- Ambient Cosmic Glows -->
+  <div class="cosmic-orb cosmic-orb-1" aria-hidden="true"></div>
+  <div class="cosmic-orb cosmic-orb-2" aria-hidden="true"></div>
+
+  <!-- Accessible Toast Container -->
+  <div id="toast-container" class="toast-container" role="alert" aria-live="polite"></div>
+
+  <!-- ========================================================================
+       1. Header & Navigation
+       ======================================================================== -->
+  <header class="navbar" id="navbar">
+    <div class="container navbar-inner">
+      <!-- Right: University & Event Brand -->
+      <a href="index.html" class="brand" aria-label="صفحه اصلی شب علم">
+        <div class="brand-emblem-wrap">
+          <img src="assets/logo.png" alt="آرم دانشگاه صنعتی نوشیروانی بابل" class="brand-logo" width="36" height="36">
+        </div>
+        <div class="brand-info">
+          <span class="brand-title">شب علم</span>
+          <span class="brand-sub">دانشگاه صنعتی نوشیروانی بابل</span>
+        </div>
+      </a>
+
+      <!-- Navigation Content -->
+      <nav class="nav-content" style="display: flex; align-items: center; gap: 1.5rem;" aria-label="ناوبری اصلی">
+        <ul class="nav-links" style="display: flex;">
+          <li><a href="index.html" class="nav-link">صفحه اصلی</a></li>
+          <li><a href="index.html#themes" class="nav-link">محورهای علمی</a></li>
+          <li><a href="index.html#signup" class="nav-link">ثبت‌نام</a></li>
+        </ul>
+
+        <a href="index.html" class="btn-ghost btn-sm" style="display: inline-flex; align-items: center; gap: 0.4rem;">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" aria-hidden="true">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M10 19l-7-7m0 0l7-7m-7 7h18"/>
+          </svg>
+          <span>بازگشت به صفحه اصلی</span>
+        </a>
+      </nav>
+    </div>
+  </header>
+
+  <main>
+    <!-- ========================================================================
+         2. Hero / Archive Header Section
+         ======================================================================== -->
+    <section class="news-archive-hero">
+      <div class="container">
+        <div class="section-header reveal revealed" style="margin-bottom: 2rem;">
+          <span class="section-tag">📰 آرشیو مقالات و اطلاعیه‌ها</span>
+          <h1 class="section-title">اخبار و گزارش‌های رسمی شب علم</h1>
+          <p class="section-desc">
+            پوشش جامع رویدادها، زمان‌بندی سخنرانی‌ها، کارگاه‌های تخصصی و آخرین دستاوردهای دانشگاه صنعتی نوشیروانی بابل
+          </p>
+        </div>
+
+        <!-- Live Search Bar -->
+        <div class="news-search-wrapper reveal revealed">
+          <div class="news-search-box">
+            <svg class="news-search-icon" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
+              <circle cx="11" cy="11" r="8"></circle>
+              <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+            </svg>
+            <input 
+              type="search" 
+              id="news-search-input" 
+              class="news-search-input" 
+              placeholder="جستجو در عنوان یا متن اطلاعیه‌ها و مقالات..."
+              aria-label="جستجوی اخبار"
+              autocomplete="off"
+            >
+            <button type="button" class="news-search-clear" id="news-search-clear" aria-label="پاک کردن جستجو" style="display: none;">&times;</button>
+          </div>
+          <div class="news-search-stats" id="news-search-stats">در حال بارگذاری اخبار...</div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ========================================================================
+         3. News Archive List Container
+         ======================================================================== -->
+    <section class="news-archive-section">
+      <div class="container">
+        <div class="news-archive-grid" id="news-archive-grid">
+          <!-- Dynamic skeleton loader -->
+          <div class="news-loading-skeleton" style="grid-column: 1 / -1;">
+            <div class="skeleton-card" style="height: 380px;"></div>
+            <div class="skeleton-card" style="height: 380px;"></div>
+          </div>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <!-- ========================================================================
+       4. Interactive Lightbox Modal
+       ======================================================================== -->
+  <div class="lightbox-overlay" id="lightbox-modal" role="dialog" aria-modal="true" aria-label="نمایش تصویر با کیفیت اصلی">
+    <button type="button" class="lightbox-close-btn" id="lightbox-close-btn" aria-label="بستن">&times;</button>
+    <div class="lightbox-content">
+      <img src="" alt="" id="lightbox-img" class="lightbox-img">
+      <div class="lightbox-caption" id="lightbox-caption"></div>
+    </div>
+  </div>
+
+  <!-- ========================================================================
+       5. Footer
+       ======================================================================== -->
+  <footer class="footer">
+    <div class="container">
+      <div class="footer-grid">
+        <div class="footer-brand">
+          <div class="footer-brand-header">
+            <img src="assets/logo-white.png" alt="دانشگاه صنعتی نوشیروانی بابل" class="footer-logo" width="32" height="32">
+            <h3 class="footer-title">رویداد شب علم دانشگاه صنعتی نوشیروانی بابل</h3>
+          </div>
+          <p class="footer-organizers">
+            با حمایت بنیاد ملی علم ایران و معاونت علمی، فناوری و اقتصاد دانش‌بنیان ریاست جمهوری
+          </p>
+          <div class="footer-date-badge">
+            <span>📍 بابل، خیابان دکتر شریعتی، دانشگاه صنعتی نوشیروانی</span>
+            <span> | </span>
+            <span>📅 ۱۲ آذرماه ۱۴۰۵</span>
+          </div>
+        </div>
+
+        <div>
+          <h4 class="footer-col-title">دسترسی سریع</h4>
+          <ul class="footer-links">
+            <li><a href="index.html">صفحه اصلی لندینگ</a></li>
+            <li><a href="index.html#themes">محورهای علمی و پوستر</a></li>
+            <li><a href="index.html#features">برنامه‌ها و امکانات</a></li>
+            <li><a href="index.html#signup">ثبت‌نام در رویداد</a></li>
+          </ul>
+        </div>
+      </div>
+
+      <div class="footer-bottom">
+        <p>© ۱۴۰۵ تمامی حقوق برای دانشگاه صنعتی نوشیروانی بابل محفوظ است.</p>
+        <a href="index.html#admin" class="admin-discreet-trigger" title="درگاه مدیران">
+          <span>🔒</span>
+          <span>پرتال همکاران</span>
+        </a>
+      </div>
+    </div>
+  </footer>
+
+</body>
+</html>
