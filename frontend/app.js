@@ -212,16 +212,23 @@ function clearInlineError(boxEl) {
 /**
  * Updates UI state based on session tokens
  * Keeps normal public view completely clean of admin jargon!
+ * When an admin is authenticated, hides the participant registration form
+ * and focuses the workspace on the executive management panel.
  */
 function updateAuthState() {
   const navAuth = document.getElementById('nav-auth');
   const adminPanel = document.getElementById('admin-panel');
+  const signupSection = document.getElementById('signup');
   const signupFormContainer = document.getElementById('signup-form-container');
   const signupRegisteredBox = document.getElementById('signup-registered-box');
+  const heroCtaBtn = document.getElementById('hero-cta-btn');
+  const footerSignupLink = document.getElementById('footer-signup-link');
+  const adminDiscreetTrigger = document.getElementById('admin-discreet-trigger');
 
   const userToken = getUserToken();
   const adminToken = getAdminToken();
 
+  // 1. Update dynamic header auth controls
   if (navAuth) {
     navAuth.innerHTML = '';
 
@@ -240,11 +247,6 @@ function updateAuthState() {
 
       navAuth.appendChild(panelLink);
       navAuth.appendChild(logoutBtn);
-
-      if (adminPanel) {
-        adminPanel.classList.add('show');
-        loadAdminNews();
-      }
     } else if (userToken) {
       // Registered User session: display badge & logout
       const badge = document.createElement('div');
@@ -259,8 +261,6 @@ function updateAuthState() {
 
       navAuth.appendChild(badge);
       navAuth.appendChild(logoutBtn);
-
-      if (adminPanel) adminPanel.classList.remove('show');
     } else {
       // Normal Public User: clean sign-up button only
       const signupBtn = document.createElement('a');
@@ -269,18 +269,88 @@ function updateAuthState() {
       signupBtn.textContent = 'ثبت‌نام در رویداد';
 
       navAuth.appendChild(signupBtn);
-
-      if (adminPanel) adminPanel.classList.remove('show');
     }
   }
 
-  // Toggle user sign-up box state
-  if (userToken) {
-    if (signupFormContainer) signupFormContainer.style.display = 'none';
-    if (signupRegisteredBox) signupRegisteredBox.classList.add('show');
+  // 2. Admin vs Participant Mode Orchestration
+  if (adminToken) {
+    // Admin is active: HIDE the participant sign-up form completely
+    if (signupSection) {
+      signupSection.classList.add('hidden-admin');
+      signupSection.style.display = 'none';
+    }
+
+    // SHOW Executive Admin Panel
+    if (adminPanel) {
+      adminPanel.classList.add('show');
+      adminPanel.querySelectorAll('.reveal').forEach(el => el.classList.add('revealed'));
+      loadAdminNews();
+    }
+
+    // Hero CTA points to Admin Panel
+    if (heroCtaBtn) {
+      heroCtaBtn.href = '#admin-panel';
+      const span = heroCtaBtn.querySelector('span');
+      if (span) span.textContent = 'ورود به پنل مدیریت';
+    }
+
+    // Footer quick link points to Admin Panel
+    if (footerSignupLink) {
+      footerSignupLink.href = '#admin-panel';
+      footerSignupLink.textContent = 'پنل مدیریت رویداد';
+    }
+
+    // Discreet staff trigger in footer is hidden when already logged in
+    if (adminDiscreetTrigger) {
+      adminDiscreetTrigger.style.display = 'none';
+    }
   } else {
-    if (signupFormContainer) signupFormContainer.style.display = 'block';
-    if (signupRegisteredBox) signupRegisteredBox.classList.remove('show');
+    // Admin is NOT active: HIDE Executive Admin Panel
+    if (adminPanel) {
+      adminPanel.classList.remove('show');
+    }
+
+    // SHOW participant registration section
+    if (signupSection) {
+      signupSection.classList.remove('hidden-admin');
+      signupSection.style.display = '';
+    }
+
+    // Restore discreet trigger
+    if (adminDiscreetTrigger) {
+      adminDiscreetTrigger.style.display = '';
+    }
+
+    // Toggle participant registration state (registered vs new form)
+    if (userToken) {
+      if (signupFormContainer) signupFormContainer.style.display = 'none';
+      if (signupRegisteredBox) signupRegisteredBox.classList.add('show');
+
+      if (heroCtaBtn) {
+        heroCtaBtn.href = '#signup';
+        const span = heroCtaBtn.querySelector('span');
+        if (span) span.textContent = 'مشاهده وضعیت ثبت‌نام';
+      }
+
+      if (footerSignupLink) {
+        footerSignupLink.href = '#signup';
+        footerSignupLink.textContent = 'وضعیت ثبت‌نام شما';
+      }
+    } else {
+      if (signupFormContainer) signupFormContainer.style.display = 'block';
+      if (signupRegisteredBox) signupRegisteredBox.classList.remove('show');
+
+      if (heroCtaBtn) {
+        heroCtaBtn.href = '#signup';
+        const span = heroCtaBtn.querySelector('span');
+        if (span) span.textContent = 'ثبت‌نام در رویداد';
+      }
+
+      if (footerSignupLink) {
+        footerSignupLink.href = '#signup';
+        footerSignupLink.textContent = 'ثبت‌نام در رویداد';
+      }
+    }
   }
 }
 
@@ -899,7 +969,10 @@ async function loadAdminNews() {
    DOM Ready Initialization
    ========================================================================== */
 document.addEventListener('DOMContentLoaded', () => {
-  // 1. Session verification on launch
+  // 1. Initial immediate auth state render to prevent layout shift
+  updateAuthState();
+
+  // 2. Session verification on launch
   validateSessions();
 
   // 2. Load public news

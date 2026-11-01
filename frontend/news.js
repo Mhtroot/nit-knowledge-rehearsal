@@ -367,6 +367,19 @@ async function loadNewsArchive() {
 document.addEventListener('DOMContentLoaded', () => {
   loadNewsArchive();
 
+  // Dynamic link update for active admin / user sessions
+  const adminToken = localStorage.getItem('adminToken');
+  const userToken = localStorage.getItem('userToken');
+  document.querySelectorAll('a[href="index.html#signup"]').forEach(link => {
+    if (adminToken) {
+      link.href = 'index.html#admin-panel';
+      link.textContent = 'پنل مدیریت';
+    } else if (userToken) {
+      link.href = 'index.html#signup';
+      link.textContent = 'وضعیت ثبت‌نام';
+    }
+  });
+
   // Search logic
   const searchInput = document.getElementById('news-search-input');
   const searchClear = document.getElementById('news-search-clear');
