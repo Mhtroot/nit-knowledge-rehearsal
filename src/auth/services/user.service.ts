@@ -8,7 +8,7 @@ export class UserServices {
   constructor(private readonly repo: UserAuthRepository) { }
 
   async create(data: Prisma.UserCreateInput): Promise<User> {
-    const exists = await this.repo.getBySsn(data.ssn);
+    const exists = await this.repo.get(data);
     if (exists) {
       throw new ConflictException({
         code: 'USER_ALREADY_EXISTS',

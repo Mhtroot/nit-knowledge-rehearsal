@@ -26,6 +26,10 @@ export class AuthController {
   @Post('user')
   @HttpCode(HttpStatus.CREATED)
   async createUser(@Body() data: CreateUserDto) {
+    data.phone = data.phone.replace('+98', '0');
+    if (data.phone.startsWith('98')) {
+      data.phone = data.phone.replace('98', '0');
+    }
     const result = await this.userServices.create(data);
 
     const payload: JwtPayload = {

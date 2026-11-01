@@ -19,6 +19,17 @@ export class UserAuthRepository {
     return await this.dbContext.db.user.findUnique({ where: { ssn } });
   }
 
+  async get(data: Prisma.UserCreateInput): Promise<User | null> {
+    return await this.dbContext.db.user.findFirst({
+      where: {
+        OR: [
+          { ssn: data.ssn },
+          { phone: data.phone}
+        ]
+      }
+    })
+  }
+
   async getAll(): Promise<User[]> {
     return await this.dbContext.db.user.findMany();
   }
