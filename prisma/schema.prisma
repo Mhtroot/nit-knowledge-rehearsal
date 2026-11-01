@@ -9,14 +9,31 @@ datasource db {
 }
 
 model Admin {
-  id    String @id @default(uuid())
+  id        String @id @default(uuid())
   username  String
   password  String
 }
 
 model User {
   id                Int     @id @default(autoincrement())
-  ssn               String     @unique
+  ssn               String  @unique
   fullName          String
   phone             String  @unique
+  childCount        Int     @default(0)
+  teenageCount      Int     @default(0)
+  adultCount        Int     @default(0)
+}
+
+model News {
+  id          Int         @id @default(autoincrement())
+  title       String
+  description String      @db.Text
+  images      NewsImage[]
+}
+
+model NewsImage {
+  id     Int    @id @default(autoincrement())
+  path   String
+  newsId Int
+  news   News   @relation(fields: [newsId], references: [id], onDelete: Cascade)
 }
