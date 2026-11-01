@@ -60,6 +60,18 @@ function clearTokens() {
 }
 
 /**
+ * Image URL Resolution
+ */
+function resolveImageUrl(path) {
+  if (!path) return '';
+  if (path.startsWith('http://') || path.startsWith('https://')) return path;
+  if (path.startsWith('/')) {
+    return `${API_BASE}${path}`;
+  }
+  return `${API_BASE}/${path}`;
+}
+
+/**
  * Button Loading State Helper
  */
 function setLoading(btn, loading) {
@@ -107,14 +119,20 @@ async function apiFetch(endpoint, options = {}) {
   const url = `${API_BASE}${endpoint.startsWith('/') ? '' : '/'}${endpoint}`;
   const headers = { ...(options.headers || {}) };
 
+  // If body is a string (JSON), attach application/json
+  // If body is FormData (e.g. file uploads), DO NOT set Content-Type header so browser adds boundary!
   if (options.body && typeof options.body === 'string' && !headers['Content-Type']) {
     headers['Content-Type'] = 'application/json';
   }
 
   let token = options.token;
   if (!token) {
-    if (endpoint.includes('admin') || endpoint.includes('export')) {
+    const isNewsMutation = endpoint.includes('news') && options.method && ['POST', 'PATCH', 'PUT', 'DELETE'].includes(options.method.toUpperCase());
+    
+    if (options.auth === 'admin' || endpoint.includes('admin') || endpoint.includes('export') || isNewsMutation) {
       token = getAdminToken();
+    } else if (options.auth === 'user') {
+      token = getUserToken();
     } else {
       token = getUserToken();
     }
@@ -148,7 +166,7 @@ function showToast(message, type = 'info') {
     </svg>`;
   } else {
     iconSvg = `<svg class="toast-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
-      <circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/>
+      <circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/>
     </svg>`;
   }
 
@@ -223,7 +241,10 @@ function updateAuthState() {
       navAuth.appendChild(panelLink);
       navAuth.appendChild(logoutBtn);
 
-      if (adminPanel) adminPanel.classList.add('show');
+      if (adminPanel) {
+        adminPanel.classList.add('show');
+        loadAdminNews();
+      }
     } else if (userToken) {
       // Registered User session: display badge & logout
       const badge = document.createElement('div');
@@ -325,6 +346,308 @@ function closeAdminModal() {
   }
 }
 
+/**
+ * Interactive Lightbox System
+ */
+function openLightbox(imgSrc, caption = '') {
+  const modal = document.getElementById('lightbox-modal');
+  const img = document.getElementById('lightbox-img');
+  const cap = document.getElementById('lightbox-caption');
+
+  if (modal && img) {
+    img.src = imgSrc;
+    if (cap) cap.textContent = caption;
+    modal.classList.add('open');
+  }
+}
+
+function closeLightbox() {
+  const modal = document.getElementById('lightbox-modal');
+  if (modal) {
+    modal.classList.remove('open');
+  }
+}
+
+/**
+ * Public News Reader Modal
+ */
+function openNewsReader(article) {
+  const modal = document.getElementById('news-reader-modal');
+  const titleEl = document.getElementById('news-reader-title');
+  const bodyEl = document.getElementById('news-modal-body');
+  const galleryEl = document.getElementById('news-modal-gallery');
+
+  if (!modal || !article) return;
+
+  if (titleEl) titleEl.textContent = article.title;
+  if (bodyEl) bodyEl.textContent = article.description;
+
+  if (galleryEl) {
+    galleryEl.innerHTML = '';
+    if (article.images && article.images.length > 0) {
+      article.images.forEach((img) => {
+        const fullSrc = resolveImageUrl(img.path);
+        const wrap = document.createElement('div');
+        wrap.className = 'news-modal-img-wrap';
+        wrap.innerHTML = `<img src="${fullSrc}" alt="${article.title}" loading="lazy">`;
+        wrap.addEventListener('click', () => {
+          openLightbox(fullSrc, article.title);
+        });
+        galleryEl.appendChild(wrap);
+      });
+    }
+  }
+
+  modal.classList.add('open');
+}
+
+function closeNewsReader() {
+  const modal = document.getElementById('news-reader-modal');
+  if (modal) modal.classList.remove('open');
+}
+
+/**
+ * Load Public News Grid (GET /news)
+ */
+async function loadPublicNews() {
+  const grid = document.getElementById('public-news-grid');
+  if (!grid) return;
+
+  try {
+    const res = await apiFetch('/news', { method: 'GET' });
+    if (!res.ok) {
+      throw new Error('Failed to fetch news');
+    }
+
+    const newsList = await res.json();
+
+    if (!Array.isArray(newsList) || newsList.length === 0) {
+      grid.innerHTML = `
+        <div class="news-empty-state">
+          <div class="news-empty-icon" aria-hidden="true">📢</div>
+          <h3 class="news-empty-title">به زودی؛ اعلام جزئیات و برنامه‌های شب علم</h3>
+          <p class="news-empty-desc">
+            اطلاعیه‌های رسمی، فهرست دقیق سخنرانان، کارگاه‌ها و محل استقرار غرفه‌های علمی دانشگاه صنعتی نوشیروانی بابل به زودی در این بخش منتشر خواهد شد.
+          </p>
+        </div>
+      `;
+      return;
+    }
+
+    grid.innerHTML = '';
+    newsList.forEach((article) => {
+      const card = document.createElement('article');
+      card.className = 'news-card reveal';
+
+      const hasImages = article.images && article.images.length > 0;
+      const coverUrl = hasImages ? resolveImageUrl(article.images[0].path) : 'assets/banner-wide.jpg';
+      const imageCountBadge = hasImages && article.images.length > 1
+        ? `<div class="news-img-count-badge">📷 ${article.images.length} تصویر</div>`
+        : '';
+
+      card.innerHTML = `
+        <div class="news-card-cover-wrap" role="button" tabindex="0">
+          <img src="${coverUrl}" alt="${article.title}" class="news-card-cover" loading="lazy">
+          ${imageCountBadge}
+        </div>
+        <div class="news-card-body">
+          <h3 class="news-card-title">${article.title}</h3>
+          <p class="news-card-desc">${article.description}</p>
+          <button type="button" class="btn-read-news">
+            <span>مشاهده کامل خبر</span>
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M19 12H5M12 19l-7-7 7-7"/>
+            </svg>
+          </button>
+        </div>
+      `;
+
+      // Click on cover or button opens full reader
+      card.querySelector('.news-card-cover-wrap').addEventListener('click', () => openNewsReader(article));
+      card.querySelector('.btn-read-news').addEventListener('click', () => openNewsReader(article));
+
+      grid.appendChild(card);
+    });
+
+    // Trigger scroll reveal for newly added elements
+    document.querySelectorAll('#public-news-grid .reveal').forEach(el => {
+      el.classList.add('revealed');
+    });
+
+  } catch (err) {
+    grid.innerHTML = `
+      <div class="news-empty-state">
+        <div class="news-empty-icon" aria-hidden="true">📢</div>
+        <h3 class="news-empty-title">به زودی؛ اعلام جزئیات و برنامه‌های شب علم</h3>
+        <p class="news-empty-desc">
+          اطلاعیه‌های رسمی، فهرست دقیق سخنرانان، کارگاه‌ها و محل استقرار غرفه‌های علمی دانشگاه صنعتی نوشیروانی بابل به زودی در این بخش قرار می‌گیرد.
+        </p>
+      </div>
+    `;
+  }
+}
+
+/**
+ * Load Admin News Management List (GET /news)
+ */
+async function loadAdminNews() {
+  const container = document.getElementById('admin-news-list');
+  if (!container) return;
+
+  const adminToken = getAdminToken();
+  if (!adminToken) return;
+
+  container.innerHTML = '<p style="color: var(--text-muted); text-align: center; font-size: 0.9rem;">در حال بارگذاری لیست اخبار...</p>';
+
+  try {
+    const res = await apiFetch('/news', { method: 'GET' });
+    if (!res.ok) {
+      container.innerHTML = '<p style="color: #fca5a5; text-align: center;">خطا در دریافت لیست اخبار.</p>';
+      return;
+    }
+
+    const newsList = await res.json();
+
+    if (!Array.isArray(newsList) || newsList.length === 0) {
+      container.innerHTML = '<p style="color: var(--text-secondary); text-align: center; padding: 1.5rem 0;">تاکنون خبری ثبت نشده است. از فرم بالا برای ثبت اولین خبر استفاده نمایید.</p>';
+      return;
+    }
+
+    container.innerHTML = '';
+    newsList.forEach((article) => {
+      const item = document.createElement('div');
+      item.className = 'admin-news-item';
+
+      // Build images strip
+      let imagesHtml = '';
+      if (article.images && article.images.length > 0) {
+        imagesHtml = article.images.map(img => `
+          <div class="admin-news-img-box">
+            <img src="${resolveImageUrl(img.path)}" alt="" class="admin-news-img-thumb">
+            <button type="button" class="btn-del-img" data-news-id="${article.id}" data-image-id="${img.id}" title="حذف این تصویر">×</button>
+          </div>
+        `).join('');
+      }
+
+      item.innerHTML = `
+        <div class="admin-news-item-top">
+          <div>
+            <h4 class="admin-news-item-title">${article.title} <small style="color: var(--cyan); font-weight: normal;">(شناسه: ${article.id})</small></h4>
+            <p class="admin-news-item-desc">${article.description}</p>
+          </div>
+          <button type="button" class="btn-del-article" data-id="${article.id}">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/>
+            </svg>
+            <span>حذف کل خبر</span>
+          </button>
+        </div>
+
+        <div class="admin-news-gallery">
+          ${imagesHtml}
+          <div class="admin-append-img-wrap">
+            <input type="file" accept="image/*" multiple class="admin-append-file-input" style="display: none;" id="append-input-${article.id}">
+            <label for="append-input-${article.id}" class="btn-append-img-label">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M12 4v16m8-8H4"/>
+              </svg>
+              <span>افزودن عکس</span>
+            </label>
+          </div>
+        </div>
+      `;
+
+      // Handle delete entire article
+      item.querySelector('.btn-del-article').addEventListener('click', async () => {
+        if (!confirm(`آیا از حذف خبر «${article.title}» اطمینان دارید؟`)) return;
+
+        try {
+          const delRes = await apiFetch(`/news/${article.id}`, {
+            method: 'DELETE',
+            auth: 'admin'
+          });
+
+          if (delRes.ok) {
+            showToast('خبر با موفقیت حذف گردید.', 'success');
+            loadAdminNews();
+            loadPublicNews();
+          } else {
+            showToast('خطا در حذف خبر.', 'error');
+          }
+        } catch {
+          showToast('خطا در برقراری ارتباط با سرور.', 'error');
+        }
+      });
+
+      // Handle delete individual image
+      item.querySelectorAll('.btn-del-img').forEach(btn => {
+        btn.addEventListener('click', async (e) => {
+          e.stopPropagation();
+          const nId = btn.getAttribute('data-news-id');
+          const imgId = btn.getAttribute('data-image-id');
+
+          if (!confirm('آیا مایل به حذف این تصویر هستید؟')) return;
+
+          try {
+            const delImgRes = await apiFetch(`/news/${nId}/images/${imgId}`, {
+              method: 'DELETE',
+              auth: 'admin'
+            });
+
+            if (delImgRes.ok) {
+              showToast('تصویر حذف گردید.', 'success');
+              loadAdminNews();
+              loadPublicNews();
+            } else {
+              showToast('خطا در حذف تصویر.', 'error');
+            }
+          } catch {
+            showToast('خطا در برقراری ارتباط با سرور.', 'error');
+          }
+        });
+      });
+
+      // Handle append image to this article
+      const appendInput = item.querySelector(`#append-input-${article.id}`);
+      if (appendInput) {
+        appendInput.addEventListener('change', async () => {
+          if (!appendInput.files || appendInput.files.length === 0) return;
+
+          const formData = new FormData();
+          for (let i = 0; i < appendInput.files.length; i++) {
+            formData.append('images', appendInput.files[i]);
+          }
+
+          showToast('در حال آپلود تصاویر...', 'info');
+
+          try {
+            const upRes = await apiFetch(`/news/${article.id}/images`, {
+              method: 'POST',
+              auth: 'admin',
+              body: formData
+            });
+
+            if (upRes.ok) {
+              showToast('تصاویر جدید با موفقیت اضافه شدند.', 'success');
+              loadAdminNews();
+              loadPublicNews();
+            } else {
+              showToast('خطا در بارگذاری تصاویر.', 'error');
+            }
+          } catch {
+            showToast('خطا در برقراری ارتباط با سرور.', 'error');
+          }
+        });
+      }
+
+      container.appendChild(item);
+    });
+
+  } catch (err) {
+    container.innerHTML = '<p style="color: #fca5a5; text-align: center;">خطا در دریافت لیست اخبار.</p>';
+  }
+}
+
 /* ==========================================================================
    DOM Ready Initialization
    ========================================================================== */
@@ -332,7 +655,10 @@ document.addEventListener('DOMContentLoaded', () => {
   // 1. Session verification on launch
   validateSessions();
 
-  // 2. Secret / Discreet trigger for Admin login:
+  // 2. Load public news
+  loadPublicNews();
+
+  // 3. Secret / Discreet trigger for Admin login:
   // e.g. URL query ?admin=1 or #admin
   const params = new URLSearchParams(window.location.search);
   if (params.get('admin') === '1' || params.get('admin') === 'true' || window.location.hash === '#admin') {
@@ -359,37 +685,88 @@ document.addEventListener('DOMContentLoaded', () => {
     });
   }
 
-  // Keyboard accessibility
-  window.addEventListener('keydown', (e) => {
-    if (e.key === 'Escape') {
-      closeAdminModal();
-      const navContent = document.getElementById('nav-content');
-      if (navContent) navContent.classList.remove('mobile-open');
-    }
-  });
-
-  // 3. Re-register button handler (allows another attendee to register)
-  const btnReRegister = document.getElementById('btn-re-register');
-  if (btnReRegister) {
-    btnReRegister.addEventListener('click', () => {
-      localStorage.removeItem('userToken');
-      updateAuthState();
-      const signupForm = document.getElementById('signup-form');
-      if (signupForm) signupForm.reset();
+  // 4. News Reader Modal Close Triggers
+  const newsModalCloseBtn = document.getElementById('news-modal-close-btn');
+  if (newsModalCloseBtn) {
+    newsModalCloseBtn.addEventListener('click', closeNewsReader);
+  }
+  const newsReaderModal = document.getElementById('news-reader-modal');
+  if (newsReaderModal) {
+    newsReaderModal.addEventListener('click', (e) => {
+      if (e.target === newsReaderModal) closeNewsReader();
     });
   }
 
-  // 4. Mobile Navigation Toggle
+  // 5. Lightbox Modal Close Triggers & Banner Zoom Handlers
+  const lightboxCloseBtn = document.getElementById('lightbox-close-btn');
+  if (lightboxCloseBtn) {
+    lightboxCloseBtn.addEventListener('click', closeLightbox);
+  }
+  const lightboxModal = document.getElementById('lightbox-modal');
+  if (lightboxModal) {
+    lightboxModal.addEventListener('click', (e) => {
+      if (e.target === lightboxModal) closeLightbox();
+    });
+  }
+
+  // Escape key closes modals
+  window.addEventListener('keydown', (e) => {
+    if (e.key === 'Escape') {
+      closeAdminModal();
+      closeNewsReader();
+      closeLightbox();
+    }
+  });
+
+  // Wire Hero Panoramic Banner Lightbox
+  const heroBannerFrame = document.getElementById('hero-banner-frame');
+  const btnZoomWide = document.getElementById('btn-zoom-wide');
+  const openWideBanner = () => {
+    openLightbox('assets/banner-wide.jpg', 'تصویر سردر دانشگاه صنعتی نوشیروانی بابل در شب علم - ۱۲ آذر ۱۴۰۵');
+  };
+  if (heroBannerFrame) {
+    heroBannerFrame.addEventListener('click', openWideBanner);
+    heroBannerFrame.addEventListener('keydown', (e) => {
+      if (e.key === 'Enter' || e.key === ' ') {
+        e.preventDefault();
+        openWideBanner();
+      }
+    });
+  }
+  if (btnZoomWide) {
+    btnZoomWide.addEventListener('click', (e) => {
+      e.stopPropagation();
+      openWideBanner();
+    });
+  }
+
+  // Wire Official Poster Lightbox
+  const posterCardTrigger = document.getElementById('poster-card-trigger');
+  if (posterCardTrigger) {
+    posterCardTrigger.addEventListener('click', (e) => {
+      if (e.target.closest('.btn-poster-download')) return; // Allow download link to work
+      openLightbox('assets/banner-poster.jpg', 'پوستر رسمی رویداد شب علم دانشگاه صنعتی نوشیروانی بابل - بپرس، کشف کن و فراتر برو');
+    });
+    posterCardTrigger.addEventListener('keydown', (e) => {
+      if (e.key === 'Enter' || e.key === ' ') {
+        e.preventDefault();
+        openLightbox('assets/banner-poster.jpg', 'پوستر رسمی رویداد شب علم دانشگاه صنعتی نوشیروانی بابل - بپرس، کشف کن و فراتر برو');
+      }
+    });
+  }
+
+  // 6. Mobile Navigation Drawer Toggle
   const mobileToggle = document.getElementById('mobile-toggle');
   const navContent = document.getElementById('nav-content');
   if (mobileToggle && navContent) {
     mobileToggle.addEventListener('click', () => {
-      const isOpen = navContent.classList.toggle('mobile-open');
-      mobileToggle.setAttribute('aria-expanded', String(isOpen));
+      const expanded = mobileToggle.getAttribute('aria-expanded') === 'true';
+      mobileToggle.setAttribute('aria-expanded', String(!expanded));
+      navContent.classList.toggle('mobile-open');
     });
 
-    // Close mobile menu on link click
-    navContent.querySelectorAll('a').forEach(link => {
+    // Close mobile menu when clicking a link
+    navContent.querySelectorAll('.nav-link').forEach(link => {
       link.addEventListener('click', () => {
         navContent.classList.remove('mobile-open');
         mobileToggle.setAttribute('aria-expanded', 'false');
@@ -397,7 +774,7 @@ document.addEventListener('DOMContentLoaded', () => {
     });
   }
 
-  // 5. Sticky Navbar Appearance on Scroll
+  // 7. Navbar blur & elevate on scroll
   const navbar = document.getElementById('navbar');
   window.addEventListener('scroll', () => {
     if (window.scrollY > 25) {
@@ -407,7 +784,7 @@ document.addEventListener('DOMContentLoaded', () => {
     }
   }, { passive: true });
 
-  // 6. Scroll Animations via IntersectionObserver
+  // 8. Scroll Animations via IntersectionObserver
   const observer = new IntersectionObserver((entries, obs) => {
     entries.forEach(entry => {
       if (entry.isIntersecting) {
@@ -419,7 +796,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
   document.querySelectorAll('.reveal').forEach(el => observer.observe(el));
 
-  // 7. Public User Sign-Up Form Handling (POST /auth/user)
+  // 9. Public User Sign-Up Form Handling (POST /auth/user)
   const signupForm = document.getElementById('signup-form');
   const signupBtn = document.getElementById('signup-btn');
   const signupErrorBox = document.getElementById('signup-error-box');
@@ -513,7 +890,16 @@ document.addEventListener('DOMContentLoaded', () => {
     });
   }
 
-  // 8. Admin Login Handling (POST /auth/admin / POST /auth/login/admin)
+  const btnReRegister = document.getElementById('btn-re-register');
+  if (btnReRegister) {
+    btnReRegister.addEventListener('click', () => {
+      logout();
+      const ssnEl = document.getElementById('ssn');
+      if (ssnEl) ssnEl.focus();
+    });
+  }
+
+  // 10. Admin Login Handling (POST /auth/admin / POST /auth/login/admin)
   const adminLoginForm = document.getElementById('admin-login-form');
   const adminLoginBtn = document.getElementById('admin-login-btn');
   const adminErrorBox = document.getElementById('admin-error-box');
@@ -596,7 +982,13 @@ document.addEventListener('DOMContentLoaded', () => {
     });
   }
 
-  // 9. Admin Panel Excel Export (GET /export)
+  // 11. Admin Panel Quick Logout Trigger
+  const adminQuickLogout = document.getElementById('admin-quick-logout');
+  if (adminQuickLogout) {
+    adminQuickLogout.addEventListener('click', logout);
+  }
+
+  // 12. Admin Panel Excel Export (GET /export)
   const btnExportExcel = document.getElementById('btn-export-excel');
   if (btnExportExcel) {
     btnExportExcel.addEventListener('click', async () => {
@@ -644,6 +1036,124 @@ document.addEventListener('DOMContentLoaded', () => {
       } finally {
         setLoading(btnExportExcel, false);
       }
+    });
+  }
+
+  // 13. Admin News Publishing Form (POST /news)
+  const adminCreateNewsForm = document.getElementById('admin-create-news-form');
+  const newsTitleInput = document.getElementById('news-title');
+  const newsDescInput = document.getElementById('news-description');
+  const newsImagesInput = document.getElementById('news-images-input');
+  const newsImagesPreview = document.getElementById('news-images-preview');
+  const btnSubmitNews = document.getElementById('btn-submit-news');
+  const newsErrorBox = document.getElementById('news-error-box');
+  const newsErrorMsg = document.getElementById('news-error-msg');
+  const btnRefreshAdminNews = document.getElementById('btn-refresh-admin-news');
+
+  let selectedNewsFiles = [];
+
+  if (newsImagesInput) {
+    newsImagesInput.addEventListener('change', () => {
+      if (newsImagesInput.files) {
+        const newFiles = Array.from(newsImagesInput.files);
+        selectedNewsFiles = [...selectedNewsFiles, ...newFiles].slice(0, 10);
+        renderNewsFilesPreview();
+      }
+    });
+  }
+
+  function renderNewsFilesPreview() {
+    if (!newsImagesPreview) return;
+    newsImagesPreview.innerHTML = '';
+
+    selectedNewsFiles.forEach((file, index) => {
+      const pill = document.createElement('div');
+      pill.className = 'preview-pill';
+      
+      const thumb = document.createElement('img');
+      thumb.className = 'preview-pill-thumb';
+      thumb.src = URL.createObjectURL(file);
+      
+      const name = document.createElement('span');
+      name.textContent = file.name.length > 15 ? file.name.substring(0, 12) + '...' : file.name;
+
+      const removeBtn = document.createElement('span');
+      removeBtn.className = 'preview-pill-remove';
+      removeBtn.textContent = '×';
+      removeBtn.title = 'حذف این فایل';
+      removeBtn.addEventListener('click', () => {
+        selectedNewsFiles.splice(index, 1);
+        renderNewsFilesPreview();
+      });
+
+      pill.appendChild(thumb);
+      pill.appendChild(name);
+      pill.appendChild(removeBtn);
+      newsImagesPreview.appendChild(pill);
+    });
+  }
+
+  if (adminCreateNewsForm) {
+    adminCreateNewsForm.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      clearInlineError(newsErrorBox);
+
+      const title = newsTitleInput.value.trim();
+      const description = newsDescInput.value.trim();
+
+      if (!title) {
+        showInlineError(newsErrorBox, newsErrorMsg, 'لطفاً عنوان خبر را وارد نمایید.');
+        newsTitleInput.focus();
+        return;
+      }
+
+      if (!description) {
+        showInlineError(newsErrorBox, newsErrorMsg, 'لطفاً متن کامل خبر را وارد نمایید.');
+        newsDescInput.focus();
+        return;
+      }
+
+      const formData = new FormData();
+      formData.append('title', title);
+      formData.append('description', description);
+
+      selectedNewsFiles.forEach(file => {
+        formData.append('images', file);
+      });
+
+      setLoading(btnSubmitNews, true);
+
+      try {
+        const res = await apiFetch('/news', {
+          method: 'POST',
+          auth: 'admin',
+          body: formData
+        });
+
+        if (res.ok) {
+          showToast('خبر جدید با موفقیت منتشر شد!', 'success');
+          adminCreateNewsForm.reset();
+          selectedNewsFiles = [];
+          renderNewsFilesPreview();
+          loadAdminNews();
+          loadPublicNews();
+        } else {
+          const data = await res.json().catch(() => ({}));
+          const errMsg = Array.isArray(data.message) ? data.message.join('، ') : (data.message || 'خطا در ثبت خبر.');
+          showInlineError(newsErrorBox, newsErrorMsg, errMsg);
+        }
+      } catch (err) {
+        showInlineError(newsErrorBox, newsErrorMsg, 'خطا در ارتباط با سرور هنگام ایجاد خبر.');
+      } finally {
+        setLoading(btnSubmitNews, false);
+      }
+    });
+  }
+
+  if (btnRefreshAdminNews) {
+    btnRefreshAdminNews.addEventListener('click', () => {
+      loadAdminNews();
+      showToast('لیست اخبار به‌روزرسانی شد.', 'info');
     });
   }
 });

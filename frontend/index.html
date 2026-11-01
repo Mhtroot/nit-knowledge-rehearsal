@@ -56,6 +56,8 @@
       <nav class="nav-content" id="nav-content" aria-label="ناوبری اصلی">
         <ul class="nav-links">
           <li><a href="#about" class="nav-link">درباره رویداد</a></li>
+          <li><a href="#themes" class="nav-link">محورهای علمی</a></li>
+          <li><a href="#news" class="nav-link">اخبار و اطلاعیه‌ها</a></li>
           <li><a href="#features" class="nav-link">برنامه‌ها</a></li>
           <li><a href="#how-it-works" class="nav-link">مسیر رویداد</a></li>
         </ul>
@@ -115,18 +117,186 @@
               <path stroke-linecap="round" stroke-linejoin="round" d="M19 12H5M12 19l-7-7 7-7"/>
             </svg>
           </a>
-          <a href="#about" class="btn-ghost">
-            <span>آشنایی بیشتر</span>
+          <a href="#themes" class="btn-ghost">
+            <span>محورها و پوستر رسمی</span>
             <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
               <path stroke-linecap="round" stroke-linejoin="round" d="M19 9l-7 7-7-7"/>
             </svg>
           </a>
         </div>
+
+        <!-- Official Panoramic Banner Showcase (Uploaded Banner 2) -->
+        <div class="hero-banner-showcase">
+          <div class="banner-frame" id="hero-banner-frame" role="button" tabindex="0" title="مشاهده تصویر پانورامای شب علم در کیفیت اصلی">
+            <img 
+              src="assets/banner-wide.jpg" 
+              alt="بانر رسمی شب علم دانشگاه صنعتی نوشیروانی بابل" 
+              class="banner-wide-img"
+              loading="eager"
+            >
+            <div class="banner-overlay">
+              <div class="banner-badge-group">
+                <span class="banner-badge">✨ سردر دانشگاه صنعتی نوشیروانی در شب علم</span>
+                <span class="banner-pill-date">۱۲ آذر ۱۴۰۵</span>
+              </div>
+              <button type="button" class="btn-banner-zoom" id="btn-zoom-wide" aria-label="مشاهده تصویر در اندازه کامل">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
+                  <path stroke-linecap="round" stroke-linejoin="round" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0zM10 7v6m3-3H7"/>
+                </svg>
+                <span>مشاهده اندازه کامل</span>
+              </button>
+            </div>
+          </div>
+        </div>
+
       </div>
     </section>
 
     <!-- ========================================================================
-         3. How It Works («مسیر همراهی شما در شب علم»)
+         3. Public News & Articles Section («اخبار و اطلاعیه‌ها»)
+         ======================================================================== -->
+    <section class="news-section" id="news">
+      <div class="container">
+        <div class="section-header reveal">
+          <span class="section-tag">📰 تازه‌ترین رویدادها</span>
+          <h2 class="section-title">اخبار و اطلاعیه‌های شب علم</h2>
+          <p class="section-desc">تازه‌ترین گزارش‌ها، زمان‌بندی غرفه‌ها و اطلاعیه‌های رسمی دانشگاه صنعتی نوشیروانی بابل</p>
+        </div>
+
+        <div class="news-grid" id="public-news-grid">
+          <!-- Populated dynamically via GET /news -->
+          <div class="news-loading-skeleton">
+            <div class="skeleton-card"></div>
+            <div class="skeleton-card"></div>
+            <div class="skeleton-card"></div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ========================================================================
+         4. Official Poster & Themes Section («محورها و پوستر رسمی رویداد»)
+         ======================================================================== -->
+    <section class="themes-section" id="themes">
+      <div class="container">
+        <div class="section-header reveal">
+          <span class="section-tag">🎨 پوستر و محورهای علمی</span>
+          <h2 class="section-title">محورها و موضوعات تخصصی شب علم</h2>
+          <p class="section-desc">یک شب برای پرسش‌های بزرگ، ایده‌های تازه و تجربه‌ی شگفتی‌های علم و فناوری در دانشگاه نوشیروانی</p>
+        </div>
+
+        <div class="poster-themes-layout">
+          <!-- Column 1: Vertical Official Event Poster (Uploaded Banner 1) -->
+          <div class="poster-card-wrap reveal">
+            <div class="poster-card" id="poster-card-trigger" role="button" tabindex="0" title="مشاهده پوستر رسمی در اندازه کامل">
+              <div class="poster-img-container">
+                <img 
+                  src="assets/banner-poster.jpg" 
+                  alt="پوستر رسمی شب علم دانشگاه صنعتی نوشیروانی بابل" 
+                  class="poster-img"
+                  loading="lazy"
+                >
+                <div class="poster-badge-top">📜 پوستر رسمی رویداد</div>
+                <div class="poster-overlay-action">
+                  <span class="btn-poster-action">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
+                      <path stroke-linecap="round" stroke-linejoin="round" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0zM10 7v6m3-3H7"/>
+                    </svg>
+                    <span>بزرگ‌نمایی و کیفیت اصلی</span>
+                  </span>
+                </div>
+              </div>
+              <div class="poster-card-footer">
+                <div class="poster-footer-info">
+                  <span class="poster-footer-title">بپرس، کشف کن و فراتر برو</span>
+                  <span class="poster-footer-date">۱۲ آذر ۱۴۰۵ | نوشیروانی بابل</span>
+                </div>
+                <a href="assets/banner-poster.jpg" download="Poster-Night-of-Sciences-NIT.jpg" class="btn-poster-download" title="دریافت فایل پوستر">
+                  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"/>
+                  </svg>
+                  <span>دانلود پوستر</span>
+                </a>
+              </div>
+            </div>
+          </div>
+
+          <!-- Column 2: 8 Themes Extracted Directly from the Official Poster -->
+          <div class="themes-grid-wrap reveal">
+            <div class="themes-grid">
+              
+              <div class="theme-card">
+                <div class="theme-icon">🤖</div>
+                <div class="theme-content">
+                  <h3 class="theme-name">هوش مصنوعی و فناوری‌های نوین</h3>
+                  <p class="theme-desc">یادگیری ماشین، پردازش زبان، بینایی کامپیوتر و کاربردهای هوش مصنوعی در حل مسائل زندگی روزمره</p>
+                </div>
+              </div>
+
+              <div class="theme-card">
+                <div class="theme-icon">🔬</div>
+                <div class="theme-content">
+                  <h3 class="theme-name">نانوفناوری و علوم نوین</h3>
+                  <p class="theme-desc">مهندسی مواد در مقیاس نانو، دستاوردهای آزمایشگاهی و پیشگامی در صنایع دانش‌بنیان</p>
+                </div>
+              </div>
+
+              <div class="theme-card">
+                <div class="theme-icon">⚙️</div>
+                <div class="theme-content">
+                  <h3 class="theme-name">رباتیک و نوآوری مهندسی</h3>
+                  <p class="theme-desc">سیستم‌های خودران، ربات‌های امدادگر و صنعتی ساخته‌شده توسط نخبگان دانشگاه</p>
+                </div>
+              </div>
+
+              <div class="theme-card">
+                <div class="theme-icon">🌱</div>
+                <div class="theme-content">
+                  <h3 class="theme-name">محیط‌زیست و توسعه پایدار</h3>
+                  <p class="theme-desc">انرژی‌های پاک، بازچرخانی منابع، پایش اکوسیستم شمال کشور و مدیریت سبز</p>
+                </div>
+              </div>
+
+              <div class="theme-card">
+                <div class="theme-icon">🩺</div>
+                <div class="theme-content">
+                  <h3 class="theme-name">سلامت، ورزش و سبک زندگی</h3>
+                  <p class="theme-desc">تلفیق دانش پزشکی، بیومکانیک ورزشی، تغذیه علمی و راهکارهای ارتقای تندرستی جامعه</p>
+                </div>
+              </div>
+
+              <div class="theme-card">
+                <div class="theme-icon">🎨</div>
+                <div class="theme-content">
+                  <h3 class="theme-name">علم، فرهنگ و هنر</h3>
+                  <p class="theme-desc">پیوند منطق ریاضی و قوانین فیزیک با خلاقیت هنری، موسیقی و میراث فرهنگی</p>
+                </div>
+              </div>
+
+              <div class="theme-card">
+                <div class="theme-icon">🧪</div>
+                <div class="theme-content">
+                  <h3 class="theme-name">کارگاه‌های تعاملی و تجربی</h3>
+                  <p class="theme-desc">لمس زنده آزمایش‌های فیزیک، شیمی و برق به زبان ساده برای کودکان، نوجوانان و خانواده‌ها</p>
+                </div>
+              </div>
+
+              <div class="theme-card">
+                <div class="theme-icon">🎙️</div>
+                <div class="theme-content">
+                  <h3 class="theme-name">سخنرانی‌های علمی و تخصصی</h3>
+                  <p class="theme-desc">گفت‌وگو با چهره‌های سرشناس علمی کشور و اساتید برجسته در قالب ارائه‌های پرانرژی</p>
+                </div>
+              </div>
+
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ========================================================================
+         5. How It Works («مسیر همراهی شما در شب علم»)
          ======================================================================== -->
     <section class="steps-section" id="how-it-works">
       <div class="container">
@@ -177,13 +347,13 @@
     </section>
 
     <!-- ========================================================================
-         4. Features («برنامه‌ها و محورهای رویداد»)
+         6. Features («برنامه‌ها و امکانات رویداد»)
          ======================================================================== -->
     <section class="features-section" id="features">
       <div class="container">
         <div class="section-header reveal">
           <span class="section-tag">برنامه‌ها و امکانات</span>
-          <h2 class="section-title">برنامه‌ها و محورهای رویداد</h2>
+          <h2 class="section-title">برنامه‌ها و امکانات رویداد</h2>
           <p class="section-desc">محیطی تعاملی و پرانرژی برای پژوهشگران، دانشجویان، دانش‌آموزان و خانواده‌ها</p>
         </div>
 
@@ -236,7 +406,7 @@
     </section>
 
     <!-- ========================================================================
-         5. About / Purpose («درباره رویداد»)
+         7. About / Purpose («درباره رویداد»)
          ======================================================================== -->
     <section class="about-section" id="about">
       <div class="container">
@@ -264,7 +434,7 @@
     </section>
 
     <!-- ========================================================================
-         6. Public User Sign-Up Form («ثبت‌نام شرکت‌کنندگان»)
+         8. Public User Sign-Up Form («ثبت‌نام شرکت‌کنندگان»)
          ======================================================================== -->
     <section class="forms-section" id="signup">
       <div class="container">
@@ -343,11 +513,11 @@
                     >
                   </div>
 
-                  <!-- Participants / Companions Counts -->
+                  <!-- Participants / Companions Counts (Optimized smaller font size on desktop for کودکان, نوجوانان, بزرگسالان) -->
                   <div class="form-row-3">
                     <div class="form-group">
-                      <label for="childCount" class="form-label">
-                        <span>همراهان کودک</span>
+                      <label for="childCount" class="form-label form-label-compact">
+                        <span>کودکان</span>
                         <span class="form-label-hint">زیر ۱۲ سال</span>
                       </label>
                       <input 
@@ -363,8 +533,8 @@
                     </div>
 
                     <div class="form-group">
-                      <label for="teenageCount" class="form-label">
-                        <span>همراهان نوجوان</span>
+                      <label for="teenageCount" class="form-label form-label-compact">
+                        <span>نوجوانان</span>
                         <span class="form-label-hint">۱۲ تا ۱۸ سال</span>
                       </label>
                       <input 
@@ -380,8 +550,8 @@
                     </div>
 
                     <div class="form-group">
-                      <label for="adultCount" class="form-label">
-                        <span>همراهان بزرگسال</span>
+                      <label for="adultCount" class="form-label form-label-compact">
+                        <span>بزرگسالان</span>
                         <span class="form-label-hint">بالای ۱۸ سال</span>
                       </label>
                       <input 
@@ -420,31 +590,162 @@
     </section>
 
     <!-- ========================================================================
-         7. Admin Panel (Displayed ONLY when adminToken is active)
+         9. Executive Admin Panel (Displayed ONLY when adminToken is active)
          ======================================================================== -->
     <section class="admin-panel-section" id="admin-panel">
       <div class="container">
-        <div class="admin-card reveal">
-          <div class="admin-badge">⚡ دسترسی فعال مدیریت</div>
-          <h2 class="admin-heading">پنل مدیریت رویداد شب علم</h2>
-          <p class="admin-info-text">
-            مدیریت سامانه ثبت‌نام رویداد شب علم دانشگاه صنعتی نوشیروانی بابل (۱۲ آذرماه ۱۴۰۵). جهت بررسی لیست نهایی مدعوین و شرکت‌کنندگان، فایل اکسل را دریافت نمایید.
-          </p>
+        <div class="admin-dashboard-wrap reveal">
+          
+          <!-- Admin Header Card -->
+          <div class="admin-header-card">
+            <div class="admin-header-main">
+              <div class="admin-badge">⚡ دسترسی فعال مدیریت رویداد</div>
+              <h2 class="admin-heading">پنل مدیریت رویداد شب علم</h2>
+              <p class="admin-info-text">
+                سامانه یکپارچه مدیریت ثبت‌نام‌ها، دریافت خروجی اکسل، و انتشار اخبار و اطلاعیه‌های رسمی دانشگاه صنعتی نوشیروانی بابل (۱۲ آذرماه ۱۴۰۵)
+              </p>
+            </div>
+            <div class="admin-header-actions">
+              <button type="button" class="btn-logout" id="admin-quick-logout">خروج از پنل مدیریت</button>
+            </div>
+          </div>
 
-          <button type="button" class="btn-download-excel" id="btn-export-excel">
-            <span class="spinner" aria-hidden="true"></span>
-            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
-              <path stroke-linecap="round" stroke-linejoin="round" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
-            </svg>
-            <span class="btn-text-content">📥 دریافت لیست شرکت‌کنندگان (Excel)</span>
-          </button>
+          <div class="admin-sections-grid">
+            <!-- 1. Export Excel Card -->
+            <div class="admin-card admin-export-card">
+              <div class="admin-card-header">
+                <span class="admin-card-icon">📊</span>
+                <h3 class="admin-card-title">دریافت لیست شرکت‌کنندگان</h3>
+              </div>
+              <p class="admin-card-desc">
+                استخراج فایل اکسل جامع شامل نام و نام خانوادگی، کد ملی، شماره همراه، تعداد همراهان (کودکان، نوجوانان، بزرگسالان) و زمان دقیق ثبت‌نام.
+              </p>
+              <button type="button" class="btn-download-excel" id="btn-export-excel">
+                <span class="spinner" aria-hidden="true"></span>
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
+                  <path stroke-linecap="round" stroke-linejoin="round" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                </svg>
+                <span class="btn-text-content">📥 دریافت خروجی اکسل (Excel)</span>
+              </button>
+            </div>
+
+            <!-- 2. Create News Article Form Card -->
+            <div class="admin-card admin-news-form-card">
+              <div class="admin-card-header">
+                <span class="admin-card-icon">✍️</span>
+                <h3 class="admin-card-title">انتشار خبر یا اطلاعیه جدید</h3>
+              </div>
+              <p class="admin-card-desc">
+                اخبار و تصاویر ثبت‌شده بلافاصله در بخش اخبار صفحه اصلی برای عموم شرکت‌کنندگان نمایش داده می‌شوند.
+              </p>
+
+              <!-- Inline Error Container for News Form -->
+              <div class="form-alert form-alert-error" id="news-error-box" role="alert">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
+                  <circle cx="12" cy="12" r="10"></circle>
+                  <line x1="12" y1="8" x2="12"></line>
+                  <line x1="12" y1="16" x2="12.01" y2="16"></line>
+                </svg>
+                <span id="news-error-msg"></span>
+              </div>
+
+              <form id="admin-create-news-form" novalidate>
+                <div class="form-group">
+                  <label for="news-title" class="form-label">
+                    <span>عنوان خبر / اطلاعیه</span>
+                    <span class="form-label-hint">الزامی</span>
+                  </label>
+                  <input 
+                    type="text" 
+                    id="news-title" 
+                    name="title" 
+                    class="form-input" 
+                    placeholder="مثال: زمان‌بندی برگزاری کارگاه‌های تخصصی اعلام شد" 
+                    required
+                  >
+                </div>
+
+                <div class="form-group">
+                  <label for="news-description" class="form-label">
+                    <span>متن خبر / توضیحات کامل</span>
+                    <span class="form-label-hint">الزامی</span>
+                  </label>
+                  <textarea 
+                    id="news-description" 
+                    name="description" 
+                    class="form-input form-textarea" 
+                    rows="4" 
+                    placeholder="متن کامل خبر، مکان برگزاری غرفه‌ها، اسامی اساتید و جزئیات رویداد را اینجا بنویسید..."
+                    required
+                  ></textarea>
+                </div>
+
+                <div class="form-group">
+                  <label class="form-label">
+                    <span>تصاویر خبر (حداکثر ۱۰ تصویر)</span>
+                    <span class="form-label-hint">عکس‌های باکیفیت تا ۱۰ مگابایت</span>
+                  </label>
+                  <div class="file-upload-dropzone" id="news-dropzone">
+                    <input 
+                      type="file" 
+                      id="news-images-input" 
+                      name="images" 
+                      accept="image/*" 
+                      multiple 
+                      class="file-upload-input"
+                    >
+                    <div class="file-upload-visual">
+                      <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
+                        <rect x="3" y="3" width="18" height="18" rx="2" ry="2"/>
+                        <circle cx="8.5" cy="8.5" r="1.5"/>
+                        <polyline points="21 15 16 10 5 21"/>
+                      </svg>
+                      <span class="upload-label-main">برای انتخاب یا رها کردن تصاویر کلیک کنید</span>
+                      <span class="upload-label-sub">پشتیبانی از انتخاب همزمان چندین تصویر</span>
+                    </div>
+                  </div>
+                  <!-- Preview of selected files before submission -->
+                  <div class="upload-preview-strip" id="news-images-preview"></div>
+                </div>
+
+                <button type="submit" class="btn-submit" id="btn-submit-news">
+                  <span class="spinner" aria-hidden="true"></span>
+                  <span class="btn-text-content">🚀 انتشار خبر در سایت</span>
+                </button>
+              </form>
+            </div>
+          </div>
+
+          <!-- 3. Existing Published News Management List -->
+          <div class="admin-card admin-manage-news-card">
+            <div class="admin-card-header admin-card-header-flex">
+              <div>
+                <span class="admin-card-icon">📋</span>
+                <h3 class="admin-card-title">لیست اخبار و اطلاعیه‌های ثبت‌شده</h3>
+              </div>
+              <button type="button" class="btn-ghost btn-sm" id="btn-refresh-admin-news" title="تازه‌سازی لیست">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
+                  <path stroke-linecap="round" stroke-linejoin="round" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"/>
+                </svg>
+                <span>تازه‌سازی لیست</span>
+              </button>
+            </div>
+            <p class="admin-card-desc">
+              در این بخش می‌توانید اخبار موجود را مشاهده، تصاویر جدید اضافه، یا مقالات و عکس‌های قدیمی را حذف نمایید.
+            </p>
+
+            <div class="admin-news-list" id="admin-news-list">
+              <!-- Rendered dynamically by app.js -->
+            </div>
+          </div>
+
         </div>
       </div>
     </section>
   </main>
 
   <!-- ========================================================================
-       8. Discreet Admin Login Modal (Hidden from public view)
+       10. Discreet Admin Login Modal (Hidden from public view)
        ======================================================================== -->
   <div class="modal-overlay" id="admin-modal" role="dialog" aria-modal="true" aria-labelledby="admin-modal-title">
     <div class="modal-box">
@@ -507,7 +808,36 @@
   </div>
 
   <!-- ========================================================================
-       9. Footer
+       11. Public News Reader Modal
+       ======================================================================== -->
+  <div class="modal-overlay" id="news-reader-modal" role="dialog" aria-modal="true" aria-labelledby="news-reader-title">
+    <div class="modal-box modal-box-large">
+      <button type="button" class="modal-close-btn" id="news-modal-close-btn" aria-label="بستن پنجره">&times;</button>
+      
+      <div class="news-modal-header">
+        <span class="section-tag" id="news-modal-tag">اطلاعیه رسمی</span>
+        <h3 class="news-modal-title" id="news-reader-title"></h3>
+      </div>
+
+      <div class="news-modal-gallery" id="news-modal-gallery"></div>
+
+      <div class="news-modal-body" id="news-modal-body"></div>
+    </div>
+  </div>
+
+  <!-- ========================================================================
+       12. Interactive Lightbox Modal (For Banners and News Photos)
+       ======================================================================== -->
+  <div class="lightbox-overlay" id="lightbox-modal" role="dialog" aria-modal="true" aria-label="نمایش تصویر با کیفیت بالا">
+    <button type="button" class="lightbox-close-btn" id="lightbox-close-btn" aria-label="بستن">&times;</button>
+    <div class="lightbox-content">
+      <img src="" alt="" id="lightbox-img" class="lightbox-img">
+      <div class="lightbox-caption" id="lightbox-caption"></div>
+    </div>
+  </div>
+
+  <!-- ========================================================================
+       13. Footer
        ======================================================================== -->
   <footer class="footer">
     <div class="container">
@@ -531,6 +861,8 @@
           <h4 class="footer-col-title">دسترسی سریع</h4>
           <ul class="footer-links">
             <li><a href="#about">درباره رویداد</a></li>
+            <li><a href="#themes">محورهای علمی و پوستر</a></li>
+            <li><a href="#news">اخبار و اطلاعیه‌ها</a></li>
             <li><a href="#features">برنامه‌ها و کارگاه‌ها</a></li>
             <li><a href="#how-it-works">مسیر همراهی</a></li>
             <li><a href="#signup">ثبت‌نام در رویداد</a></li>
