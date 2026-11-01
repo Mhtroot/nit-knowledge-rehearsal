@@ -28,10 +28,24 @@ export class ExcelService {
     );
 
     const data: string[][] = [];
-    data.push(['کد ملی', 'نام و نام خانوادگی', 'شماره تلفن']);
+    data.push([
+      'کد ملی',
+      'نام و نام خانوادگی',
+      'شماره تلفن',
+      'تعداد کودک',
+      'تعداد نوجوان',
+      'تعداد بزرگسال',
+    ]);
 
     for (const user of sortedUsers) {
-      data.push([user.ssn, user.fullName, user.phone]);
+      data.push([
+        user.ssn,
+        user.fullName,
+        user.phone,
+        String(user.childCount ?? 0),
+        String(user.teenageCount ?? 0),
+        String(user.adultCount ?? 0),
+      ]);
     }
 
     try {

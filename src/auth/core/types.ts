@@ -9,6 +9,9 @@ export interface User {
   ssn: string;
   fullName: string;
   phone: string;
+  childCount: number;
+  teenageCount: number;
+  adultCount: number;
 }
 
 export interface JwtPayload {
