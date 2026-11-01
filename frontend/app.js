@@ -4,23 +4,17 @@
  */
 
 /**
- * Dynamic API Base URL resolution:
- * 1. Query parameter ?api_base=... or ?api=... (saved to localStorage for persistence)
- * 2. Window global window.API_BASE (useful for container / deployment injection)
- * 3. LocalStorage key 'API_BASE'
- * 4. Current host origin if served from the same server / port 3000
- * 5. Fallback default: 'http://localhost:3000'
+ * Origin-Aware API Base URL:
+ * Resolves to window.location.origin directly (preventing all CORS & host mismatches),
+ * with fallback to http://localhost:3000 if opened directly as file:// in browser.
+ * Supports manual override via ?api_base=... or window.API_BASE if ever needed.
  */
-function resolveApiBase() {
+const API_BASE = (() => {
   try {
     const params = new URLSearchParams(window.location.search);
     const queryApi = params.get('api_base') || params.get('api');
-    if (queryApi) {
-      const clean = queryApi.replace(/\/+$/, '');
-      localStorage.setItem('API_BASE', clean);
-      return clean;
-    }
-  } catch {}
+    if (queryApi) return queryApi.replace(/\/+$/, '');
+  } catch (_) {}
 
   if (typeof window.API_BASE === 'string' && window.API_BASE.trim()) {
     return window.API_BASE.trim().replace(/\/+$/, '');
@@ -31,18 +25,70 @@ function resolveApiBase() {
     return stored.trim().replace(/\/+$/, '');
   }
 
+  // Same-origin default (resolves CORS & host issues across ports, LAN IPs, and production domains)
   if (typeof window !== 'undefined' && window.location && window.location.origin) {
-    if (window.location.origin !== 'null' && !window.location.origin.startsWith('file://')) {
-      if (window.location.port === '3000') {
-        return window.location.origin;
-      }
+    if (window.location.origin !== 'null' && !window.location.origin.startsWith('file:')) {
+      return window.location.origin;
     }
   }
 
   return 'http://localhost:3000';
+})();
+
+/**
+ * Token Helpers
+ */
+function getUserToken() {
+  return localStorage.getItem('userToken');
 }
 
-const API_BASE = resolveApiBase();
+function setUserToken(token) {
+  localStorage.setItem('userToken', token);
+}
+
+function getAdminToken() {
+  return localStorage.getItem('adminToken');
+}
+
+function setAdminToken(token) {
+  localStorage.setItem('adminToken', token);
+}
+
+function clearTokens() {
+  localStorage.removeItem('userToken');
+  localStorage.removeItem('adminToken');
+}
+
+/**
+ * Button Loading State Helper
+ */
+function setLoading(btn, loading) {
+  if (!btn) return;
+  if (loading) {
+    btn._savedHtml = btn.innerHTML;
+    btn.classList.add('btn-loading');
+    btn.disabled = true;
+  } else {
+    btn.classList.remove('btn-loading');
+    btn.disabled = false;
+    if (btn._savedHtml) {
+      btn.innerHTML = btn._savedHtml;
+      delete btn._savedHtml;
+    }
+  }
+}
+
+/**
+ * Auto-dismiss inline notification boxes after timeout
+ */
+function autoDismiss(el, timeout = 5000) {
+  if (!el) return;
+  if (el._dismissTimer) clearTimeout(el._dismissTimer);
+  el._dismissTimer = setTimeout(() => {
+    el.classList.remove('show');
+    delete el._dismissTimer;
+  }, timeout);
+}
 
 /**
  * Converts Persian (۰-۹) and Arabic (٠-٩) numerals to standard ASCII digits (0-9)
@@ -61,18 +107,16 @@ async function apiFetch(endpoint, options = {}) {
   const url = `${API_BASE}${endpoint.startsWith('/') ? '' : '/'}${endpoint}`;
   const headers = { ...(options.headers || {}) };
 
-  // Set Content-Type for JSON body unless explicitly specified or body is FormData/Blob
   if (options.body && typeof options.body === 'string' && !headers['Content-Type']) {
     headers['Content-Type'] = 'application/json';
   }
 
-  // Determine authorization token: explicit option > adminToken for admin/export > userToken
   let token = options.token;
   if (!token) {
     if (endpoint.includes('admin') || endpoint.includes('export')) {
-      token = localStorage.getItem('adminToken');
+      token = getAdminToken();
     } else {
-      token = localStorage.getItem('userToken');
+      token = getUserToken();
     }
   }
 
@@ -104,7 +148,7 @@ function showToast(message, type = 'info') {
     </svg>`;
   } else {
     iconSvg = `<svg class="toast-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
-      <circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/>
+      <circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/>
     </svg>`;
   }
 
@@ -137,7 +181,10 @@ function showToast(message, type = 'info') {
 
 function showInlineError(boxEl, msgEl, message) {
   if (msgEl) msgEl.textContent = message;
-  if (boxEl) boxEl.classList.add('show');
+  if (boxEl) {
+    boxEl.classList.add('show');
+    autoDismiss(boxEl, 6000);
+  }
 }
 
 function clearInlineError(boxEl) {
@@ -154,8 +201,8 @@ function updateAuthState() {
   const signupFormContainer = document.getElementById('signup-form-container');
   const signupRegisteredBox = document.getElementById('signup-registered-box');
 
-  const userToken = localStorage.getItem('userToken');
-  const adminToken = localStorage.getItem('adminToken');
+  const userToken = getUserToken();
+  const adminToken = getAdminToken();
 
   if (navAuth) {
     navAuth.innerHTML = '';
@@ -220,8 +267,7 @@ function updateAuthState() {
  * Logout clears session tokens and resets UI
  */
 function logout() {
-  localStorage.removeItem('userToken');
-  localStorage.removeItem('adminToken');
+  clearTokens();
   updateAuthState();
   showToast('با موفقیت از حساب کاربری خارج شدید.', 'info');
 }
@@ -230,8 +276,8 @@ function logout() {
  * Validates active tokens against real backend endpoints on load
  */
 async function validateSessions() {
-  const userToken = localStorage.getItem('userToken');
-  const adminToken = localStorage.getItem('adminToken');
+  const userToken = getUserToken();
+  const adminToken = getAdminToken();
 
   if (userToken) {
     try {
@@ -429,9 +475,7 @@ document.addEventListener('DOMContentLoaded', () => {
         return;
       }
 
-      // In-flight state
-      signupBtn.disabled = true;
-      signupBtn.classList.add('btn-loading');
+      setLoading(signupBtn, true);
 
       try {
         const res = await apiFetch('/auth/user', {
@@ -442,7 +486,7 @@ document.addEventListener('DOMContentLoaded', () => {
         const data = await res.json().catch(() => ({}));
 
         if (res.status === 201 && data.token) {
-          localStorage.setItem('userToken', data.token);
+          setUserToken(data.token);
           showToast('ثبت‌نام شما با موفقیت انجام شد!', 'success');
           updateAuthState();
           signupForm.reset();
@@ -457,8 +501,7 @@ document.addEventListener('DOMContentLoaded', () => {
       } catch (err) {
         showInlineError(signupErrorBox, signupErrorMsg, 'عدم برقراری ارتباط با سرور. لطفاً اتصال اینترنت خود را بررسی نمایید.');
       } finally {
-        signupBtn.disabled = false;
-        signupBtn.classList.remove('btn-loading');
+        setLoading(signupBtn, false);
       }
     });
   }
@@ -491,8 +534,7 @@ document.addEventListener('DOMContentLoaded', () => {
         return;
       }
 
-      adminLoginBtn.disabled = true;
-      adminLoginBtn.classList.add('btn-loading');
+      setLoading(adminLoginBtn, true);
 
       try {
         let res = await apiFetch('/auth/admin', {
@@ -523,7 +565,7 @@ document.addEventListener('DOMContentLoaded', () => {
         }
 
         if ((res.status === 201 || res.status === 200) && data.token) {
-          localStorage.setItem('adminToken', data.token);
+          setAdminToken(data.token);
           showToast('ورود مدیران با موفقیت انجام شد.', 'success');
           closeAdminModal();
           updateAuthState();
@@ -542,8 +584,7 @@ document.addEventListener('DOMContentLoaded', () => {
       } catch (err) {
         showInlineError(adminErrorBox, adminErrorMsg, 'خطا در برقراری ارتباط با سرور.');
       } finally {
-        adminLoginBtn.disabled = false;
-        adminLoginBtn.classList.remove('btn-loading');
+        setLoading(adminLoginBtn, false);
       }
     });
   }
@@ -552,15 +593,14 @@ document.addEventListener('DOMContentLoaded', () => {
   const btnExportExcel = document.getElementById('btn-export-excel');
   if (btnExportExcel) {
     btnExportExcel.addEventListener('click', async () => {
-      const adminToken = localStorage.getItem('adminToken');
+      const adminToken = getAdminToken();
       if (!adminToken) {
         showToast('لطفاً ابتدا به عنوان مدیر وارد شوید.', 'error');
         updateAuthState();
         return;
       }
 
-      btnExportExcel.disabled = true;
-      btnExportExcel.classList.add('btn-loading');
+      setLoading(btnExportExcel, true);
 
       try {
         const res = await apiFetch('/export', {
@@ -595,8 +635,7 @@ document.addEventListener('DOMContentLoaded', () => {
       } catch (err) {
         showToast('خطا در دریافت فایل اکسل از سرور.', 'error');
       } finally {
-        btnExportExcel.disabled = false;
-        btnExportExcel.classList.remove('btn-loading');
+        setLoading(btnExportExcel, false);
       }
     });
   }

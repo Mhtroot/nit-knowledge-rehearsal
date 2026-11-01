@@ -63,4 +63,4 @@ uploads/
 package-lock.json
 
 prisma/migrations
-assets/
+/assets/
