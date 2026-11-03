@@ -39,3 +39,10 @@ model NewsImage {
   newsId Int
   news   News   @relation(fields: [newsId], references: [id], onDelete: Cascade)
 }
+
+model Workshop {
+  id          Int     @id @default(autoincrement())
+  title       String
+  description String
+  bannerPath  String?
+}
