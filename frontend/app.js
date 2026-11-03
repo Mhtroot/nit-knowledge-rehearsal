@@ -72,6 +72,19 @@ function resolveImageUrl(path) {
 }
 
 /**
+ * XSS Safe HTML Escape
+ */
+function escapeHtml(str) {
+  if (!str) return '';
+  return String(str)
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;')
+    .replace(/'/g, '&#39;');
+}
+
+/**
  * Button Loading State Helper
  */
 function setLoading(btn, loading) {
@@ -128,8 +141,9 @@ async function apiFetch(endpoint, options = {}) {
   let token = options.token;
   if (!token) {
     const isNewsMutation = endpoint.includes('news') && options.method && ['POST', 'PATCH', 'PUT', 'DELETE'].includes(options.method.toUpperCase());
+    const isWorkshopMutation = endpoint.includes('workshop') && options.method && ['POST', 'PATCH', 'PUT', 'DELETE'].includes(options.method.toUpperCase());
     
-    if (options.auth === 'admin' || endpoint.includes('admin') || endpoint.includes('export') || isNewsMutation) {
+    if (options.auth === 'admin' || endpoint.includes('admin') || endpoint.includes('export') || isNewsMutation || isWorkshopMutation) {
       token = getAdminToken();
     } else if (options.auth === 'user') {
       token = getUserToken();
@@ -285,6 +299,7 @@ function updateAuthState() {
       adminPanel.classList.add('show');
       adminPanel.querySelectorAll('.reveal').forEach(el => el.classList.add('revealed'));
       loadAdminNews();
+      loadAdminWorkshops();
     }
 
     // Hero CTA points to Admin Panel
@@ -965,6 +980,323 @@ async function loadAdminNews() {
   }
 }
 
+/**
+ * ==========================================================================
+ * Public & Admin Workshop System
+ * ==========================================================================
+ */
+
+let currentActiveWorkshop = null;
+
+function openWorkshopModal(workshop) {
+  const modal = document.getElementById('workshop-modal');
+  const imgEl = document.getElementById('workshop-modal-img');
+  const bgEl = document.getElementById('workshop-modal-banner-bg');
+  const titleEl = document.getElementById('workshop-modal-title');
+  const descEl = document.getElementById('workshop-modal-desc');
+  const bannerFrame = document.getElementById('workshop-modal-banner-frame');
+  const scrollable = modal ? modal.querySelector('.workshop-modal-scrollable') : null;
+
+  if (!modal || !workshop) return;
+  currentActiveWorkshop = workshop;
+
+  if (titleEl) titleEl.textContent = workshop.title || 'کارگاه آموزشی شب علم';
+  if (descEl) descEl.textContent = workshop.description || '';
+
+  if (workshop.bannerPath) {
+    const fullImgUrl = resolveImageUrl(workshop.bannerPath);
+    if (imgEl) {
+      imgEl.src = fullImgUrl;
+      imgEl.alt = workshop.title || '';
+      imgEl.style.display = 'block';
+      imgEl.onclick = () => openLightbox(fullImgUrl, workshop.title || '');
+    }
+    if (bgEl) {
+      bgEl.style.backgroundImage = `url("${fullImgUrl}")`;
+      bgEl.style.display = 'block';
+    }
+    if (bannerFrame) bannerFrame.style.display = 'flex';
+  } else {
+    if (imgEl) imgEl.style.display = 'none';
+    if (bgEl) bgEl.style.display = 'none';
+    if (bannerFrame) bannerFrame.style.display = 'none';
+  }
+
+  if (scrollable) scrollable.scrollTop = 0;
+
+  modal.classList.add('open');
+}
+
+function closeWorkshopModal() {
+  const modal = document.getElementById('workshop-modal');
+  if (modal) modal.classList.remove('open');
+  currentActiveWorkshop = null;
+}
+
+/**
+ * Load Public Workshops (GET /workshop)
+ */
+async function loadPublicWorkshops() {
+  const grid = document.getElementById('workshops-grid');
+  if (!grid) return;
+
+  grid.innerHTML = `
+    <div class="workshop-skeleton-card"></div>
+    <div class="workshop-skeleton-card"></div>
+    <div class="workshop-skeleton-card"></div>
+  `;
+
+  try {
+    const res = await apiFetch('/workshop', { method: 'GET' });
+    if (!res.ok) throw new Error('Network error');
+
+    const workshops = await res.json();
+    if (!Array.isArray(workshops) || workshops.length === 0) {
+      renderWorkshopsEmptyState(grid);
+      return;
+    }
+
+    renderPublicWorkshops(workshops);
+  } catch (err) {
+    renderWorkshopsEmptyState(grid);
+  }
+}
+
+function renderWorkshopsEmptyState(grid) {
+  grid.innerHTML = `
+    <div class="news-empty-state" style="grid-column: 1 / -1; margin: 1.5rem 0;">
+      <div class="news-empty-icon" aria-hidden="true">🛠️</div>
+      <h3 class="news-empty-title">به زودی؛ ثبت و اعلام کارگاه‌های آموزشی شب علم</h3>
+      <p class="news-empty-desc">
+        برنامه‌ها و سرفصل‌های کارگاه‌های تعاملی و تخصصی اساتید دانشگاه صنعتی نوشیروانی بابل به زودی در این بخش قرار خواهد گرفت. برای حضور در کارگاه‌ها از بخش زیر اقدام به ثبت‌نام نمایید.
+      </p>
+    </div>
+  `;
+}
+
+function renderPublicWorkshops(workshops) {
+  const grid = document.getElementById('workshops-grid');
+  if (!grid) return;
+
+  grid.innerHTML = '';
+
+  workshops.forEach((ws, idx) => {
+    const card = document.createElement('article');
+    card.className = 'workshop-card reveal revealed';
+    card.setAttribute('data-id', ws.id);
+
+    // Banner HTML
+    let bannerHtml = '';
+    if (ws.bannerPath) {
+      const bannerSrc = resolveImageUrl(ws.bannerPath);
+      bannerHtml = `
+        <div class="workshop-banner-wrap" role="button" tabindex="0" title="مشاهده جزئیات کامل ${escapeHtml(ws.title)}">
+          <div class="workshop-banner-bg" style="background-image: url('${bannerSrc}')"></div>
+          <img src="${bannerSrc}" alt="${escapeHtml(ws.title)}" class="workshop-banner-img" loading="lazy">
+          <div class="workshop-banner-overlay">
+            <span class="workshop-tag">کارگاه تخصصی ${idx + 1}</span>
+            <span class="workshop-expand-indicator">
+              <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/>
+                <path stroke-linecap="round" stroke-linejoin="round" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/>
+              </svg>
+              <span>مشاهده جزئیات</span>
+            </span>
+          </div>
+        </div>
+      `;
+    } else {
+      bannerHtml = `
+        <div class="workshop-banner-wrap" role="button" tabindex="0" title="مشاهده جزئیات کامل ${escapeHtml(ws.title)}">
+          <div class="workshop-banner-placeholder">
+            <svg width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="var(--cyan)" stroke-width="1.8" aria-hidden="true">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M19.428 15.428a2 2 0 00-1.022-.547l-2.387-.477a6 6 0 00-3.86.517l-.318.158a6 6 0 01-3.86.517L6.05 15.21a2 2 0 00-1.806.547M8 4h8l-1 1v5.172a2 2 0 00.586 1.414l5 5c1.26 1.26.367 3.414-1.415 3.414H4.828c-1.782 0-2.674-2.154-1.414-3.414l5-5A2 2 0 009 10.172V5L8 4z"/>
+            </svg>
+            <span style="font-size: 0.85rem; font-weight: 600; color: #fff;">کارگاه تخصصی شب علم</span>
+          </div>
+          <div class="workshop-banner-overlay">
+            <span class="workshop-tag">کارگاه تخصصی ${idx + 1}</span>
+            <span class="workshop-expand-indicator">
+              <span>مشاهده جزئیات</span>
+            </span>
+          </div>
+        </div>
+      `;
+    }
+
+    card.innerHTML = `
+      ${bannerHtml}
+      <div class="workshop-card-body">
+        <div class="workshop-card-header" role="button" tabindex="0" title="نمایش توضیحات کارگاه">
+          <h3 class="workshop-card-title">${escapeHtml(ws.title)}</h3>
+          <button type="button" class="btn-workshop-toggle" aria-expanded="false" title="تغییر وضعیت نمایش توضیحات">
+            <span class="toggle-text">توضیحات</span>
+            <svg class="chevron-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" aria-hidden="true">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M19 9l-7 7-7-7"/>
+            </svg>
+          </button>
+        </div>
+        <div class="workshop-desc-accordion" aria-hidden="true">
+          <div class="workshop-desc-inner">
+            <p class="workshop-full-desc">${escapeHtml(ws.description)}</p>
+            <div class="workshop-card-actions">
+              <button type="button" class="btn-open-modal-detail">
+                <span>نمایش در پنجره تمام‌صفحه</span>
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
+                  <path stroke-linecap="round" stroke-linejoin="round" d="M4 8V4m0 0h4M4 4l5 5m11-1V4m0 0h-4m4 0l-5 5M4 16v4m0 0h4m-4 0l5-5m11 5v-4m0 4h-4m4 0l-5-5"/>
+                </svg>
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+    `;
+
+    // Interactive toggle listeners
+    const bannerWrap = card.querySelector('.workshop-banner-wrap');
+    const headerWrap = card.querySelector('.workshop-card-header');
+    const toggleBtn = card.querySelector('.btn-workshop-toggle');
+    const toggleText = card.querySelector('.toggle-text');
+    const accordion = card.querySelector('.workshop-desc-accordion');
+    const modalBtn = card.querySelector('.btn-open-modal-detail');
+
+    function toggleAccordion() {
+      const isExpanded = card.classList.toggle('expanded');
+      toggleBtn.setAttribute('aria-expanded', isExpanded ? 'true' : 'false');
+      accordion.setAttribute('aria-hidden', isExpanded ? 'false' : 'true');
+      if (toggleText) {
+        toggleText.textContent = isExpanded ? 'بستن' : 'توضیحات';
+      }
+    }
+
+    if (toggleBtn) {
+      toggleBtn.addEventListener('click', (e) => {
+        e.stopPropagation();
+        toggleAccordion();
+      });
+    }
+
+    if (headerWrap) {
+      headerWrap.addEventListener('click', (e) => {
+        if (e.target !== toggleBtn && !toggleBtn.contains(e.target)) {
+          toggleAccordion();
+        }
+      });
+      headerWrap.addEventListener('keydown', (e) => {
+        if (e.key === 'Enter' || e.key === ' ') {
+          e.preventDefault();
+          toggleAccordion();
+        }
+      });
+    }
+
+    // Clicking banner opens the full detail modal
+    if (bannerWrap) {
+      bannerWrap.addEventListener('click', () => {
+        openWorkshopModal(ws);
+      });
+      bannerWrap.addEventListener('keydown', (e) => {
+        if (e.key === 'Enter' || e.key === ' ') {
+          e.preventDefault();
+          openWorkshopModal(ws);
+        }
+      });
+    }
+
+    if (modalBtn) {
+      modalBtn.addEventListener('click', (e) => {
+        e.stopPropagation();
+        openWorkshopModal(ws);
+      });
+    }
+
+    grid.appendChild(card);
+  });
+}
+
+/**
+ * Load Admin Workshop Management List (GET /workshop)
+ */
+async function loadAdminWorkshops() {
+  const container = document.getElementById('admin-workshops-list');
+  if (!container) return;
+
+  const adminToken = getAdminToken();
+  if (!adminToken) return;
+
+  container.innerHTML = '<p style="color: var(--text-muted); text-align: center; font-size: 0.9rem;">در حال بارگذاری لیست کارگاه‌ها...</p>';
+
+  try {
+    const res = await apiFetch('/workshop', { method: 'GET' });
+    if (!res.ok) {
+      container.innerHTML = '<p style="color: #fca5a5; text-align: center;">خطا در دریافت لیست کارگاه‌ها.</p>';
+      return;
+    }
+
+    const workshops = await res.json();
+
+    if (!Array.isArray(workshops) || workshops.length === 0) {
+      container.innerHTML = '<p style="color: var(--text-secondary); text-align: center; padding: 1.5rem 0;">تاکنون کارگاهی ثبت نشده است. از فرم بالا برای ثبت اولین کارگاه استفاده فرمایید.</p>';
+      return;
+    }
+
+    container.innerHTML = '';
+    workshops.forEach(ws => {
+      const item = document.createElement('div');
+      item.className = 'admin-workshop-item';
+
+      let thumbHtml = '';
+      if (ws.bannerPath) {
+        thumbHtml = `<img src="${resolveImageUrl(ws.bannerPath)}" alt="${escapeHtml(ws.title)}" class="admin-workshop-thumb">`;
+      } else {
+        thumbHtml = `<div class="admin-workshop-thumb-placeholder">🛠️</div>`;
+      }
+
+      item.innerHTML = `
+        <div class="admin-workshop-item-right">
+          ${thumbHtml}
+          <div class="admin-workshop-details">
+            <h4 class="admin-workshop-title">${escapeHtml(ws.title)} <small style="color: var(--cyan); font-weight: normal;">(شناسه: ${ws.id})</small></h4>
+            <p class="admin-workshop-desc-preview">${escapeHtml(ws.description)}</p>
+          </div>
+        </div>
+        <button type="button" class="btn-del-workshop" data-id="${ws.id}">
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/>
+          </svg>
+          <span>حذف کارگاه</span>
+        </button>
+      `;
+
+      item.querySelector('.btn-del-workshop').addEventListener('click', async () => {
+        if (!confirm(`آیا از حذف کارگاه «${ws.title}» اطمینان دارید؟`)) return;
+
+        try {
+          const delRes = await apiFetch(`/workshop/${ws.id}`, {
+            method: 'DELETE',
+            auth: 'admin'
+          });
+
+          if (delRes.ok) {
+            showToast('کارگاه با موفقیت حذف گردید.', 'success');
+            loadAdminWorkshops();
+            loadPublicWorkshops();
+          } else {
+            showToast('خطا در حذف کارگاه.', 'error');
+          }
+        } catch {
+          showToast('خطا در برقراری ارتباط با سرور.', 'error');
+        }
+      });
+
+      container.appendChild(item);
+    });
+
+  } catch (err) {
+    container.innerHTML = '<p style="color: #fca5a5; text-align: center;">خطا در دریافت لیست کارگاه‌ها.</p>';
+  }
+}
+
 /* ==========================================================================
    DOM Ready Initialization
    ========================================================================== */
@@ -975,10 +1307,11 @@ document.addEventListener('DOMContentLoaded', () => {
   // 2. Session verification on launch
   validateSessions();
 
-  // 2. Load public news
+  // 3. Load public news & workshops
   loadPublicNews();
+  loadPublicWorkshops();
 
-  // 3. Secret / Discreet trigger for Admin login:
+  // 4. Secret / Discreet trigger for Admin login:
   // e.g. URL query ?admin=1 or #admin
   const params = new URLSearchParams(window.location.search);
   if (params.get('admin') === '1' || params.get('admin') === 'true' || window.location.hash === '#admin') {
@@ -1005,7 +1338,7 @@ document.addEventListener('DOMContentLoaded', () => {
     });
   }
 
-  // 4. News Reader Modal Close Triggers
+  // 5. News Reader Modal Close Triggers
   const newsModalCloseBtn = document.getElementById('news-modal-close-btn');
   if (newsModalCloseBtn) {
     newsModalCloseBtn.addEventListener('click', closeNewsReader);
@@ -1017,7 +1350,30 @@ document.addEventListener('DOMContentLoaded', () => {
     });
   }
 
-  // 5. Lightbox Modal Close Triggers & Banner Zoom Handlers
+  // 6. Workshop Detail Modal Close Triggers
+  const wsModalCloseBtn = document.getElementById('workshop-modal-close-btn');
+  const wsModalCloseBottom = document.getElementById('workshop-modal-close-bottom');
+  const wsModal = document.getElementById('workshop-modal');
+  if (wsModalCloseBtn) {
+    wsModalCloseBtn.addEventListener('click', closeWorkshopModal);
+  }
+  if (wsModalCloseBottom) {
+    wsModalCloseBottom.addEventListener('click', closeWorkshopModal);
+  }
+  if (wsModal) {
+    wsModal.addEventListener('click', (e) => {
+      if (e.target === wsModal) closeWorkshopModal();
+    });
+  }
+
+  const wsModalSignupBtn = document.getElementById('workshop-modal-signup-btn');
+  if (wsModalSignupBtn) {
+    wsModalSignupBtn.addEventListener('click', () => {
+      closeWorkshopModal();
+    });
+  }
+
+  // 7. Lightbox Modal Close Triggers & Banner Zoom Handlers
   const lightboxCloseBtn = document.getElementById('lightbox-close-btn');
   if (lightboxCloseBtn) {
     lightboxCloseBtn.addEventListener('click', closeLightbox);
@@ -1029,11 +1385,12 @@ document.addEventListener('DOMContentLoaded', () => {
     });
   }
 
-  // Escape key closes modals
+  // Escape key closes all modals
   window.addEventListener('keydown', (e) => {
     if (e.key === 'Escape') {
       closeAdminModal();
       closeNewsReader();
+      closeWorkshopModal();
       closeLightbox();
     }
   });
@@ -1474,6 +1831,124 @@ document.addEventListener('DOMContentLoaded', () => {
     btnRefreshAdminNews.addEventListener('click', () => {
       loadAdminNews();
       showToast('لیست اخبار به‌روزرسانی شد.', 'info');
+    });
+  }
+
+  // 14. Admin Workshop Creation Form (POST /workshop)
+  const adminCreateWorkshopForm = document.getElementById('admin-create-workshop-form');
+  const workshopTitleInput = document.getElementById('workshop-title');
+  const workshopDescInput = document.getElementById('workshop-description');
+  const workshopBannerInput = document.getElementById('workshop-banner-input');
+  const workshopBannerPreview = document.getElementById('workshop-banner-preview');
+  const btnSubmitWorkshop = document.getElementById('btn-submit-workshop');
+  const workshopErrorBox = document.getElementById('workshop-error-box');
+  const workshopErrorMsg = document.getElementById('workshop-error-msg');
+  const btnRefreshAdminWorkshops = document.getElementById('btn-refresh-admin-workshops');
+
+  let selectedWorkshopBanner = null;
+
+  if (workshopBannerInput) {
+    workshopBannerInput.addEventListener('change', () => {
+      if (workshopBannerInput.files && workshopBannerInput.files[0]) {
+        selectedWorkshopBanner = workshopBannerInput.files[0];
+        renderWorkshopBannerPreview();
+      }
+    });
+  }
+
+  function renderWorkshopBannerPreview() {
+    if (!workshopBannerPreview) return;
+    workshopBannerPreview.innerHTML = '';
+    if (!selectedWorkshopBanner) return;
+
+    const pill = document.createElement('div');
+    pill.className = 'preview-pill';
+
+    const thumb = document.createElement('img');
+    thumb.className = 'preview-pill-thumb';
+    thumb.src = URL.createObjectURL(selectedWorkshopBanner);
+
+    const name = document.createElement('span');
+    name.textContent = selectedWorkshopBanner.name.length > 15
+      ? selectedWorkshopBanner.name.substring(0, 12) + '...'
+      : selectedWorkshopBanner.name;
+
+    const removeBtn = document.createElement('span');
+    removeBtn.className = 'preview-pill-remove';
+    removeBtn.textContent = '×';
+    removeBtn.title = 'حذف تصویر';
+    removeBtn.addEventListener('click', () => {
+      selectedWorkshopBanner = null;
+      if (workshopBannerInput) workshopBannerInput.value = '';
+      renderWorkshopBannerPreview();
+    });
+
+    pill.appendChild(thumb);
+    pill.appendChild(name);
+    pill.appendChild(removeBtn);
+    workshopBannerPreview.appendChild(pill);
+  }
+
+  if (adminCreateWorkshopForm) {
+    adminCreateWorkshopForm.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      clearInlineError(workshopErrorBox);
+
+      const title = workshopTitleInput ? workshopTitleInput.value.trim() : '';
+      const description = workshopDescInput ? workshopDescInput.value.trim() : '';
+
+      if (!title) {
+        showInlineError(workshopErrorBox, workshopErrorMsg, 'لطفاً عنوان کارگاه را وارد نمایید.');
+        if (workshopTitleInput) workshopTitleInput.focus();
+        return;
+      }
+
+      if (!description) {
+        showInlineError(workshopErrorBox, workshopErrorMsg, 'لطفاً توضیحات کامل کارگاه را وارد نمایید.');
+        if (workshopDescInput) workshopDescInput.focus();
+        return;
+      }
+
+      const formData = new FormData();
+      formData.append('title', title);
+      formData.append('description', description);
+      if (selectedWorkshopBanner) {
+        formData.append('bannerPath', selectedWorkshopBanner);
+      }
+
+      setLoading(btnSubmitWorkshop, true);
+
+      try {
+        const res = await apiFetch('/workshop', {
+          method: 'POST',
+          auth: 'admin',
+          body: formData
+        });
+
+        if (res.ok) {
+          showToast('کارگاه آموزشی با موفقیت ثبت شد!', 'success');
+          adminCreateWorkshopForm.reset();
+          selectedWorkshopBanner = null;
+          renderWorkshopBannerPreview();
+          loadAdminWorkshops();
+          loadPublicWorkshops();
+        } else {
+          const data = await res.json().catch(() => ({}));
+          const errMsg = Array.isArray(data.message) ? data.message.join('، ') : (data.message || 'خطا در ثبت کارگاه.');
+          showInlineError(workshopErrorBox, workshopErrorMsg, errMsg);
+        }
+      } catch (err) {
+        showInlineError(workshopErrorBox, workshopErrorMsg, 'خطا در ارتباط با سرور هنگام ثبت کارگاه.');
+      } finally {
+        setLoading(btnSubmitWorkshop, false);
+      }
+    });
+  }
+
+  if (btnRefreshAdminWorkshops) {
+    btnRefreshAdminWorkshops.addEventListener('click', () => {
+      loadAdminWorkshops();
+      showToast('لیست کارگاه‌ها به‌روزرسانی شد.', 'info');
     });
   }
 });

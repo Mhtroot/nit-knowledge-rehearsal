@@ -57,6 +57,7 @@
         <ul class="nav-links">
           <li><a href="#about" class="nav-link">درباره رویداد</a></li>
           <li><a href="#themes" class="nav-link">محورهای علمی</a></li>
+          <li><a href="#workshops" class="nav-link">کارگاه‌ها</a></li>
           <li><a href="#news" class="nav-link">اخبار و اطلاعیه‌ها</a></li>
           <li><a href="#features" class="nav-link">برنامه‌ها</a></li>
           <li><a href="#how-it-works" class="nav-link">مسیر رویداد</a></li>
@@ -440,6 +441,26 @@
     </section>
 
     <!-- ========================================================================
+         6. Interactive Workshops Section («کارگاه‌های آموزشی و تخصصی»)
+         ======================================================================== -->
+    <section class="workshops-section" id="workshops">
+      <div class="container">
+        <div class="section-header reveal">
+          <span class="section-tag">🛠️ کارگاه‌های تخصصی و مهارتی</span>
+          <h2 class="section-title">کارگاه‌های آموزشی شب علم</h2>
+          <p class="section-desc">
+            آشنایی عملی با علوم و فناوری‌های نوین در کارگاه‌های تعاملی اساتید و نخبگان دانشگاه صنعتی نوشیروانی بابل — برای مشاهده توضیحات کامل و سرفصل‌های هر کارگاه روی آن کلیک کنید.
+          </p>
+        </div>
+
+        <!-- Workshops Grid Container -->
+        <div class="workshops-grid" id="workshops-grid">
+          <!-- Rendered dynamically by app.js -->
+        </div>
+      </div>
+    </section>
+
+    <!-- ========================================================================
          7. About / Purpose («درباره رویداد»)
          ======================================================================== -->
     <section class="about-section" id="about">
@@ -479,7 +500,7 @@
             <div id="signup-form-container">
               <div class="form-title-group">
                 <h2 class="form-main-title">ثبت‌نام شرکت‌کنندگان در شب علم</h2>
-                <p class="form-sub-title">حضور در رویداد رایگان است؛ جهت صدور کارت الکترونیکی اطلاعات خود را وارد نمایید.</p>
+                <p class="form-sub-title">جهت صدور کارت الکترونیکی و هماهنگی حضور در رویداد، اطلاعات خود را وارد نمایید.</p>
               </div>
 
               <!-- Inline Error Container -->
@@ -748,9 +769,117 @@
                 </button>
               </form>
             </div>
+
+            <!-- 3. Create Workshop Form Card -->
+            <div class="admin-card admin-workshop-form-card">
+              <div class="admin-card-header">
+                <span class="admin-card-icon">🛠️</span>
+                <h3 class="admin-card-title">ثبت کارگاه آموزشی جدید</h3>
+              </div>
+              <p class="admin-card-desc">
+                عنوان، توضیحات و بنر اختصاصی کارگاه را وارد کنید تا در بخش کارگاه‌های صفحه اصلی منتشر گردد.
+              </p>
+
+              <!-- Inline Error Container for Workshop Form -->
+              <div class="form-alert form-alert-error" id="workshop-error-box" role="alert">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
+                  <circle cx="12" cy="12" r="10"></circle>
+                  <line x1="12" y1="8" x2="12"></line>
+                  <line x1="12" y1="16" x2="12.01" y2="16"></line>
+                </svg>
+                <span id="workshop-error-msg"></span>
+              </div>
+
+              <form id="admin-create-workshop-form" novalidate>
+                <div class="form-group">
+                  <label for="workshop-title" class="form-label">
+                    <span>عنوان کارگاه</span>
+                    <span class="form-label-hint">الزامی</span>
+                  </label>
+                  <input 
+                    type="text" 
+                    id="workshop-title" 
+                    name="title" 
+                    class="form-input" 
+                    placeholder="مثال: کارگاه تخصصی یادگیری عمیق و بینایی ماشین" 
+                    required
+                  >
+                </div>
+
+                <div class="form-group">
+                  <label for="workshop-description" class="form-label">
+                    <span>توضیحات و سرفصل‌های کارگاه</span>
+                    <span class="form-label-hint">الزامی</span>
+                  </label>
+                  <textarea 
+                    id="workshop-description" 
+                    name="description" 
+                    class="form-input form-textarea" 
+                    rows="4" 
+                    placeholder="اهداف کارگاه، سرفصل‌های آموزشی، نحوه مشارکت مخاطبان و پیش‌نیازها را اینجا بنویسید..."
+                    required
+                  ></textarea>
+                </div>
+
+                <div class="form-group">
+                  <label class="form-label">
+                    <span>پوستر یا بنر کارگاه</span>
+                    <span class="form-label-hint">فایل تصویری تا ۱۰ مگابایت</span>
+                  </label>
+                  <div class="file-upload-dropzone" id="workshop-dropzone">
+                    <input 
+                      type="file" 
+                      id="workshop-banner-input" 
+                      name="bannerPath" 
+                      accept="image/*" 
+                      class="file-upload-input"
+                    >
+                    <div class="file-upload-visual">
+                      <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
+                        <rect x="3" y="3" width="18" height="18" rx="2" ry="2"/>
+                        <circle cx="8.5" cy="8.5" r="1.5"/>
+                        <polyline points="21 15 16 10 5 21"/>
+                      </svg>
+                      <span class="upload-label-main">برای انتخاب یا رها کردن بنر کارگاه کلیک کنید</span>
+                      <span class="upload-label-sub">پشتیبانی از JPG, PNG, WebP</span>
+                    </div>
+                  </div>
+                  <!-- Preview of selected banner before submission -->
+                  <div class="upload-preview-strip" id="workshop-banner-preview"></div>
+                </div>
+
+                <button type="submit" class="btn-submit" id="btn-submit-workshop">
+                  <span class="spinner" aria-hidden="true"></span>
+                  <span class="btn-text-content">🚀 ثبت و انتشار کارگاه</span>
+                </button>
+              </form>
+            </div>
           </div>
 
-          <!-- 3. Existing Published News Management List -->
+          <!-- 4. Existing Workshops Management List -->
+          <div class="admin-card admin-manage-workshops-card">
+            <div class="admin-card-header admin-card-header-flex">
+              <div>
+                <span class="admin-card-icon">🛠️</span>
+                <h3 class="admin-card-title">لیست کارگاه‌های آموزشی ثبت‌شده</h3>
+              </div>
+              <button type="button" class="btn-ghost btn-sm" id="btn-refresh-admin-workshops" title="تازه‌سازی لیست">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
+                  <path stroke-linecap="round" stroke-linejoin="round" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"/>
+                </svg>
+                <span>تازه‌سازی لیست</span>
+              </button>
+            </div>
+            <p class="admin-card-desc">
+              در این بخش می‌توانید کارگاه‌های آموزشی منتشر شده را مرور و در صورت نیاز حذف فرمایید.
+            </p>
+
+            <div class="admin-workshops-list" id="admin-workshops-list">
+              <!-- Rendered dynamically by app.js -->
+            </div>
+          </div>
+
+          <!-- 5. Existing Published News Management List -->
           <div class="admin-card admin-manage-news-card">
             <div class="admin-card-header admin-card-header-flex">
               <div>
@@ -842,7 +971,44 @@
   </div>
 
   <!-- ========================================================================
-       11. Public News Reader Modal
+       11. Public Workshop Detail Modal
+       ======================================================================== -->
+  <div class="modal-overlay" id="workshop-modal" role="dialog" aria-modal="true" aria-labelledby="workshop-modal-title">
+    <div class="modal-box modal-box-large workshop-modal-box">
+      <button type="button" class="modal-close-btn" id="workshop-modal-close-btn" aria-label="بستن پنجره">&times;</button>
+      
+      <div class="workshop-modal-scrollable">
+        <div class="workshop-modal-banner-frame" id="workshop-modal-banner-frame">
+          <div class="workshop-modal-banner-bg" id="workshop-modal-banner-bg"></div>
+          <img id="workshop-modal-img" src="" alt="" class="workshop-modal-img" title="مشاهده تصویر در اندازه اصلی">
+        </div>
+
+        <div class="workshop-modal-body">
+          <span class="section-tag" style="margin-bottom: 0.6rem; display: inline-block;">کارگاه تخصصی شب علم</span>
+          <h3 class="workshop-modal-title" id="workshop-modal-title"></h3>
+          <div class="workshop-modal-meta">
+            <span class="workshop-meta-pill">📅 ۱۲ آذر ۱۴۰۵</span>
+            <span class="workshop-meta-pill">📍 دانشگاه صنعتی نوشیروانی بابل</span>
+            <span class="workshop-meta-pill">⚡ رویداد شب علم</span>
+          </div>
+          <div class="workshop-modal-desc-text" id="workshop-modal-desc"></div>
+        </div>
+      </div>
+
+      <div class="workshop-modal-footer">
+        <button type="button" class="btn-ghost" id="workshop-modal-close-bottom">بستن پنجره</button>
+        <a href="#signup" class="btn-primary" id="workshop-modal-signup-btn">
+          <span>ثبت‌نام برای حضور در رویداد</span>
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" aria-hidden="true">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M19 12H5M12 19l-7-7 7-7"/>
+          </svg>
+        </a>
+      </div>
+    </div>
+  </div>
+
+  <!-- ========================================================================
+       12. Public News Reader Modal
        ======================================================================== -->
   <div class="modal-overlay" id="news-reader-modal" role="dialog" aria-modal="true" aria-labelledby="news-reader-title">
     <div class="modal-box modal-box-large">
@@ -896,8 +1062,9 @@
           <ul class="footer-links">
             <li><a href="#about">درباره رویداد</a></li>
             <li><a href="#themes">محورهای علمی و پوستر</a></li>
+            <li><a href="#workshops">کارگاه‌های آموزشی</a></li>
             <li><a href="#news">اخبار و اطلاعیه‌ها</a></li>
-            <li><a href="#features">برنامه‌ها و کارگاه‌ها</a></li>
+            <li><a href="#features">برنامه‌ها و امکانات</a></li>
             <li><a href="#how-it-works">مسیر همراهی</a></li>
             <li><a href="#signup" id="footer-signup-link">ثبت‌نام در رویداد</a></li>
           </ul>
