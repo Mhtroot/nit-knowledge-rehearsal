@@ -22,9 +22,15 @@ export class DbContextService implements OnModuleInit, OnModuleDestroy {
         user: decodeURIComponent(url.username),
         password: decodeURIComponent(url.password),
         database: url.pathname.slice(1),
+        allowPublicKeyRetrieval: true,
+        ssl: false,
       }),
     });
   }
+
+  //mobile article pge has issues ith it
+  // cn not edit the article
+  //   with n
 
   async onModuleInit() {
     await this.db.$connect();
