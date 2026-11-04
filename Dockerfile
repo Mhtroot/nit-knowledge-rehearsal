@@ -1,38 +1,39 @@
-# Build stage
+# ---------- Build stage ----------
 FROM node:22-alpine AS builder
 
 WORKDIR /app
 
-# Copy package files
+# Copy package files and Prisma config first (better layer caching)
 COPY package*.json ./
 COPY prisma ./prisma/
 COPY prisma.config.ts ./
 
 # Install all dependencies (including devDependencies for building)
-RUN npm ci
+RUN npm install --no-audit --no-fund
 
 # Copy source code
 COPY . .
 
-# Generate Prisma client (provide dummy URL for generation)
+# Generate Prisma client (dummy URL, only needed for generation)
 ENV DATABASE_URL="mysql://user:pass@localhost:3306/db"
 RUN npx prisma generate
 
 # Build TypeScript
 RUN npm run build
 
-# Production stage
+
+# ---------- Production stage ----------
 FROM node:22-alpine AS production
 
 WORKDIR /app
 
-# Copy package files
+# Copy package files and Prisma config
 COPY package*.json ./
 COPY prisma ./prisma/
 COPY prisma.config.ts ./
 
-# Install production dependencies plus prisma CLI for migrations
-RUN npm ci --only=production && npm install prisma
+# Install production dependencies only (prisma CLI is in "dependencies")
+RUN npm install --omit=dev --no-audit --no-fund
 
 # Copy built files from builder stage
 COPY --from=builder /app/dist ./dist
