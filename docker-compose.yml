@@ -47,5 +47,5 @@ volumes:
   app_assets:
 
 networks:
-  basebot-network:
+  elm-network:
     driver: bridge
