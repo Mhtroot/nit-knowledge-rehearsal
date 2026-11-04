@@ -1,34 +1,51 @@
 services:
   db:
-    image: mysql:8
+    image: mariadb:11
+    container_name: elm-db
     restart: unless-stopped
     environment:
-      MYSQL_ROOT_PASSWORD: ${DB_PASS:-root}
-      MYSQL_DATABASE: ${DB:-service_base}
+      MYSQL_ROOT_PASSWORD: ${DB_PASSWORD:-root}
+      MYSQL_DATABASE: ${DB_NAME:-mydb}
+      MYSQL_USER: ${DB_USER:-basebot}
+      MYSQL_PASSWORD: ${DB_PASSWORD:-root}
+    ports:
+      - "${DB_PORT:-3307}:3306"
     volumes:
       - db_data:/var/lib/mysql
     healthcheck:
-      test: ["CMD", "mysqladmin", "ping", "-h", "localhost"]
+      test: ["CMD", "healthcheck.sh", "--connect", "--innodb_initialized"]
       interval: 10s
       timeout: 5s
       retries: 5
+      start_period: 30s
+    networks:
+      - elm-network
 
   app:
-    build: .
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: app
     restart: unless-stopped
-    ports:
-      - "80:1234"
+    env_file: 
+      - .env
     environment:
-      DATABASE_URL: "mysql://${DB_USER:-root}:${DB_PASS:-root}@db:3306/${DB:-service_base}"
-      PORT: 1234
-      JWT_SECRET: ${JWT_SECRET}
-      CORS_ORIGIN: ${CORS_ORIGIN:-*}
+      DATABASE_URL: mysql://${DB_USER:-basebot}:${DB_PASSWORD:-root}@db:3306/${DB_NAME:-mydb}
+    ports:
+      - "${PORT:-4567}:4567"
     volumes:
       - app_assets:/app/assets
     depends_on:
       db:
         condition: service_healthy
+    networks:
+      - elm-network
+
 
 volumes:
   db_data:
   app_assets:
+
+networks:
+  basebot-network:
+    driver: bridge

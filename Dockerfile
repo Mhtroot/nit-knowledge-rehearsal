@@ -1,18 +1,53 @@
-FROM node:22-alpine AS build
-    WORKDIR /app
-    COPY package*.json ./
-    RUN npm install
-    COPY prisma ./prisma
-    COPY prisma.config.ts ./
-    RUN npm run db:generate
-    COPY . .
-    RUN npm run build
+# Build stage
+FROM node:20-alpine AS builder
 
-    FROM node:22-alpine
-    WORKDIR /app
-    COPY --from=build /app/dist ./dist
-    COPY --from=build /app/node_modules ./node_modules
-    COPY --from=build /app/package.json ./
-    COPY --from=build /app/frontend ./frontend
-    EXPOSE 1234
-    CMD ["node", "dist/main"]
+WORKDIR /app
+
+# Copy package files
+COPY package*.json ./
+COPY prisma ./prisma/
+COPY prisma.config.ts ./
+
+# Install all dependencies (including devDependencies for building)
+RUN npm ci
+
+# Copy source code
+COPY . .
+
+# Generate Prisma client (provide dummy URL for generation)
+ENV DATABASE_URL="mysql://user:pass@localhost:3306/db"
+RUN npx prisma generate
+
+# Build TypeScript
+RUN npm run build
+
+# Production stage
+FROM node:20-alpine AS production
+
+WORKDIR /app
+
+# Copy package files
+COPY package*.json ./
+COPY prisma ./prisma/
+COPY prisma.config.ts ./
+
+# Install production dependencies plus prisma CLI for migrations
+RUN npm ci --only=production && npm install prisma
+
+# Copy built files from builder stage
+COPY --from=builder /app/dist ./dist
+COPY --from=builder /app/generated ./generated
+
+# Copy entrypoint script
+COPY docker-entrypoint.sh ./
+RUN chmod +x docker-entrypoint.sh
+
+# Expose the application port
+EXPOSE 4567
+
+# Health check
+HEALTHCHECK --interval=30s --timeout=10s --start-period=30s --retries=3 \
+    CMD wget --no-verbose --tries=1 --spider http://localhost:4567/ || exit 1
+
+# Start the application with entrypoint
+ENTRYPOINT ["./docker-entrypoint.sh"]
