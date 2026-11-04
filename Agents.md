@@ -5,7 +5,7 @@ Welcome to **AgenticBots_ServiceBase**. This file serves as the single source of
 ---
 
 ## ⚠️ CRITICAL AGENT DIRECTIVES
-*DO NOT COMMIT OR PUSH ANYTHING ON GITHUB. ACT AS SENIOR BACKEND EVELOPER. FOLLOW THE PROJECT STRUCTURE
+*DO NOT COMMIT OR PUSH ANYTHING ON GITHUB. ACT AS SENIOR BACKEND DEVELOPER. FOLLOW THE PROJECT STRUCTURE.*
 
 ### 1. Mandatory Nest CLI Usage
 **ALWAYS use the Nest CLI (`npx nest g <schematic> <name>`) when generating new components, modules, services, controllers, or resources.**
@@ -31,7 +31,7 @@ This project is a scalable backend service built on the **NestJS 11** framework 
                            +------------------------+
                            |       main.ts          |
                            | (Bootstrap, Pipes,     |
-                           |  Swagger, CORS, Env)   |
+                           |  Swagger, CORS, Static)|
                            +-----------+------------+
                                        |
                                        v
@@ -44,73 +44,98 @@ This project is a scalable backend service built on the **NestJS 11** framework 
                    v                                       v
          +--------------------+                 +--------------------+
          |     AuthModule     |                 |  DbContextModule   |
-         | (JWT, Passport)    |                 | (PrismaClient, DB) |
+         | (JWT, Bcrypt, RLS) |                 | (PrismaClient, DB) |
          +--------------------+                 +--------------------+
                    |                                       |
                    v                                       v
          [Feature Modules...] -----------------> [DbContextService]
-     (Controller -> Service -> DB)                         |
-                                                           v
+     (Controller -> Service -> Repo)                       |
+     (News, Workshops, Excel)                              v
                                                   [MariaDB / MySQL DB]
 ```
 
 ### Core Architecture Layers:
 
 1. **Application Bootstrap (`src/main.ts`)**:
-   - Environment loading via Node.js native `process.loadEnvFile()` (no extra dotenv dependency needed).
+   - Environment loading via Node.js native `process.loadEnvFile()` when `.env` exists.
    - Global validation via `ValidationPipe` with `{ whitelist: true, forbidNonWhitelisted: true, transform: true }`.
-   - Dynamic CORS configuration via `CORS_ORIGIN` env variable.
+   - Dynamic CORS configuration via `CORS_ORIGIN` env variable (`*` fallback).
+   - Static file serving:
+     - `/frontend` directory served at root.
+     - `/assets` directory mounted with prefix `/assets/` (serving uploaded images from `/assets/images/`).
    - OpenAPI / Swagger documentation mounted at `/docs` (JSON spec at `/docs/json`, YAML at `/docs/yaml`) with Bearer Auth enabled.
 
 2. **Root Module (`src/app.module.ts`)**:
-   - Root orchestrator aggregating feature modules (`DbContextModule`, `AuthModule`, and any newly created business feature modules).
+   - Root orchestrator aggregating core and feature modules:
+     - `DbContextModule` (Global database layer)
+     - `AuthModule` (Authentication & authorization)
+     - `NewsModule` (News articles and media attachments)
+     - `WorkshopModule` (Workshops & banners)
+     - `ExcelModule` (User demographics spreadsheet export)
 
 3. **Database Layer (`prisma/` & `src/db-context/`)**:
    - **ORM**: Prisma v7 (`@prisma/client`, `prisma`).
    - **Database Provider**: MariaDB / MySQL using `@prisma/adapter-mariadb`.
-   - **Configuration**: a single `DATABASE_URL` (`mysql://user:pass@host:port/db`) env variable is used by both `prisma.config.ts` (migrations/generate) and the runtime `DbContextService`.
-   - **Generated client**: `prisma/schema.prisma` uses the `prisma-client` generator with output `src/generated/prisma` (git-ignored, compiled into `dist/`). Run `npm run db:generate` (`prisma generate`) after `npm install` and after every schema change. Import types from `../generated/prisma/client`, never from `@prisma/client`.
+   - **Configuration**: `DATABASE_URL` (`mysql://user:pass@host:port/db`) env variable used by `prisma.config.ts` (migrations/generate) and runtime `DbContextService`.
+   - **Generated client**: `prisma/schema.prisma` outputs to `src/generated/prisma` (git-ignored, compiled into `dist/`). Run `npm run db:generate` (`prisma generate`) after schema changes. Always import types from `src/generated/prisma/client`.
    - **`DbContextService` (`src/db-context/db-context.service.ts`)**:
-     - The single owner of the `PrismaClient`; exposes it as the readonly `db` property (the dbContext).
-     - Builds the `@prisma/adapter-mariadb` adapter from `DATABASE_URL`, connects and runs a heartbeat (`SELECT 1`) on `OnModuleInit`, disconnects on `OnModuleDestroy`.
-   - **`DbContextModule`** is `@Global()` and exports `DbContextService`, so feature modules do not need to import it.
-   - **Usage pattern**: every model gets its own service (`npx nest g resource <name>`) that injects `DbContextService` and queries via `this.dbContext.db.<model>`. Controllers never touch `dbContext` directly:
+     - The single owner of `PrismaClient`, exposed as the readonly `db` property.
+     - Instantiates the `@prisma/adapter-mariadb` adapter from `DATABASE_URL`, connects and executes a heartbeat query (`SELECT 1`) on `OnModuleInit`, disconnects on `OnModuleDestroy`.
+   - **`DbContextModule`** is `@Global()` and exports `DbContextService`, so feature modules do not need to re-import it.
+   - **Repository Pattern**: Business services delegate direct queries to dedicated repositories, which inject `DbContextService`:
      ```typescript
      @Injectable()
-     export class UsersService {
+     export class WorkshopRepository {
        constructor(private readonly dbContext: DbContextService) {}
 
-       findById(id: number) {
-         return this.dbContext.db.user.findUnique({ where: { id } });
+       findUnique(id: number) {
+         return this.dbContext.db.workshop.findUnique({ where: { id } });
        }
      }
      ```
 
 4. **Authentication & Authorization Layer (`src/auth/`)**:
-   - **Standard JWT & Passport Integration**: Uses `@nestjs/jwt` and `@nestjs/passport` with `passport-jwt` strategy, verified locally using `JWT_SECRET` (symmetric HS256).
-   - **`JwtStrategy` (`src/auth/jwt.strategy.ts`)**: Passport JWT strategy that extracts Bearer tokens, verifies them against `JWT_SECRET`, and validates the token payload (`JwtPayload`).
-   - **`AuthService` (`src/auth/auth.service.ts`)**: Helper service providing `signToken(payload)` and `verifyToken(token)` via `@nestjs/jwt`.
+   - **JWT Token Management**: Direct verification using `@nestjs/jwt` (`JwtService.verifyAsync()`) with symmetric `JWT_SECRET` (HS256).
+   - **Password Security**: Bcrypt-based hashing and validation via helper functions (`src/auth/helper/password.helper.ts`).
    - **Guards (`src/auth/guards/`)**:
-     - `JwtAuthGuard`: generic JWT guard (`AuthGuard('jwt')`) allowing any valid authenticated user.
-     - `AdminGuard`: requires `role === 'admin'` and `type === 'access'`, attaches `req.user` (`JwtPayload`) to `AuthedRequest` (`src/auth/authed-request.ts`).
-     - `UserGuard`: requires `role === 'user'` and `type === 'access'`, attaches `req.user`.
-   - **`AuthModule`** exports `AuthService`, `JwtModule`, `PassportModule`, `JwtStrategy`, `AdminGuard`, `UserGuard`, and `JwtAuthGuard`. Feature modules import `AuthModule` to use the guards and auth services.
-   - **`AuthTestModule` (`src/auth-test/`)**: sample `admin/me` and `user/me` routes for verifying auth wiring; remove it from `AppModule` for production if not needed.
-   - **Swagger Integration**: Protected controller routes must be annotated with `@ApiBearerAuth()` and `@UseGuards(AdminGuard | UserGuard)`.
+     - `AdminAuthGuard`: Extracts Bearer token, verifies signature, verifies `role === 'admin'`, and populates `req.user` (`JwtPayload`).
+     - `AuthGuard` (User Guard): Extracts Bearer token, verifies signature, verifies `role === 'user'`, and populates `req.user`.
+   - **Controllers & Endpoints**:
+     - `AdminAuthController` (`/auth`):
+       - `POST /auth/login/admin`: Authenticate admin with username/password, returns JWT.
+       - `POST /auth/admin`: Register a new admin account (hashes password with bcrypt).
+     - `AuthController` (`/auth`):
+       - `POST /auth/user`: Register participant user with national code (`ssn`), full name, phone number (normalizes Iranian prefixes `+98`/`98` to `0`), and family metrics (`childCount`, `teenageCount`, `adultCount`).
+       - `GET /auth/validate/user`: Validates user Bearer token (`AuthGuard`).
 
 5. **News & Media Layer (`src/news/`)**:
-   - **Models**: `News` (title, description) and `NewsImage` (path, newsId) managed via `DbContextService`.
-   - **Local Storage**: Uploaded news images are stored on disk in `/assets/images/` at the project root. Static file serving is mounted in `main.ts` with prefix `/assets/` (`app.useStaticAssets(assetsDir, { prefix: '/assets/' })`), allowing images to be retrieved via `/assets/images/<filename>`.
-   - **Admin CRUD Authorization**:
-     - `POST /news`: Create news with optional image uploads (`AdminAuthGuard`).
-     - `PATCH /news/:id`: Update news and optionally attach new images (`AdminAuthGuard`).
-     - `DELETE /news/:id`: Delete news and purge all associated physical image files (`AdminAuthGuard`).
-     - `POST /news/:id/images`: Upload and append images to an existing news article (`AdminAuthGuard`).
-     - `DELETE /news/:id/images/:imageId`: Delete a specific image record and remove the file from disk (`AdminAuthGuard`).
-   - **Public Read Endpoints**: `GET /news` and `GET /news/:id` are open for clients and include associated images.
-   - **File Safety & Lifecycle**:
-     - Multer configuration (`src/news/news-storage.ts`) validates image MIME types, restricts file sizes (10MB limit), and uses crypto-random UUIDs.
-     - On creation or update failures, newly uploaded files are cleaned up to prevent orphaned files on disk.
+   - **Models**: `News` (title, description, timestamps) and `NewsImage` (path, newsId) managed via `NewsRepository` and `NewsImageRepository`.
+   - **Local Storage**: Uploaded news images are stored on disk in `/assets/images/` via Multer (`newsMulterOptions` in `src/news/helpers/news-storage.ts`).
+   - **Endpoints**:
+     - `POST /news`: Create news with optional multi-image uploads (`AdminAuthGuard`).
+     - `GET /news` & `GET /news/:id`: Public endpoints returning news articles with image paths.
+     - `PATCH /news/:id`: Update title/description with optional image attachments (`AdminAuthGuard`).
+     - `DELETE /news/:id`: Remove article and purge physical files from disk (`AdminAuthGuard`).
+   - **File Safety**: Automatic disk cleanup of orphaned files on failed upload operations or item deletions (`deleteImageFile`).
+
+6. **Workshops Layer (`src/workshops/`)**:
+   - **Model**: `Workshop` (id, title, description, bannerPath).
+   - **Endpoints**:
+     - `GET /workshop` & `GET /workshop/:id`: Public access to workshop entries.
+     - `POST /workshop`: Create workshop with optional banner upload (`AdminAuthGuard`, `bannerPath` saved to `/assets/images/`).
+     - `PUT /workshop/:id`: Update workshop fields and/or replace banner (`AdminAuthGuard`).
+     - `DELETE /workshop/:id`: Delete workshop and delete associated banner image file (`AdminAuthGuard`).
+
+7. **Excel Export Layer (`src/excel/`)**:
+   - **Endpoints**:
+     - `GET /export`: Protected by `AdminAuthGuard`. Fetches registered users and their household metrics, generates an `.xlsx` workbook via `exceljs`, and streams it back as `users.xlsx` with appropriate headers.
+
+8. **Containerization & Deployment Layer**:
+   - **`Dockerfile`**: Multi-stage build (Node 22 Alpine) compiling TypeScript and generating Prisma client in `builder`, executing on a lean `production` image.
+   - **`docker-entrypoint.sh`**: Runs `npx prisma db push` before booting the application via `exec node dist/main.js`.
+   - **`docker-compose.yml`**:
+     - `db`: MariaDB 11 service (`elm-db`) with persistent volume `db_data` and internal health checks.
+     - `app`: NestJS service dependent on healthy `db`, with mounted volume `app_assets:/app/assets` to persist uploaded media files.
 
 ---
 
@@ -118,41 +143,55 @@ This project is a scalable backend service built on the **NestJS 11** framework 
 
 ```
 .
+├── .dockerignore             # Docker build ignores
 ├── .env.example              # Template for required environment variables
 ├── assets/                   # Static runtime storage (git-ignored)
-│   ├── excel/                # Generated excel files
-│   └── images/               # Uploaded news images
+│   ├── excel/                # Exported/temporary excel files
+│   └── images/               # Uploaded news & workshop images
+├── docker-compose.yml        # Docker compose stack (MariaDB + NestJS app)
+├── docker-entrypoint.sh      # Container entrypoint (prisma db push + node start)
+├── Dockerfile                # Multi-stage production container build
 ├── frontend/                 # Static frontend client files
 ├── nest-cli.json             # NestJS CLI configuration
 ├── package.json              # Project scripts and dependencies
-├── prisma.config.ts          # Prisma v7 configuration (migrations, schema, datasource)
+├── prisma.config.ts          # Prisma v7 configuration
 ├── prisma/
-│   └── schema.prisma         # Prisma schema definitions (models, relations)
+│   └── schema.prisma         # Prisma schema definitions (Admin, User, News, NewsImage, Workshop)
 ├── src/
-│   ├── main.ts               # Application entry point & global configuration
+│   ├── main.ts               # Application entry point, Swagger, CORS, Static Assets
 │   ├── app.module.ts         # Root module
 │   ├── app.controller.ts     # Health / root endpoints
 │   ├── app.service.ts        # Root business logic
 │   ├── auth/                 # Central authentication & JWT verification
 │   │   ├── auth.module.ts
-│   │   ├── auth.service.ts   # Token signing and verification helper
-│   │   ├── authed-request.ts # AuthedRequest type
-│   │   ├── jwt.interface.ts  # JwtPayload and Role definitions
-│   │   ├── jwt.strategy.ts   # Passport JWT Strategy (HS256 via JWT_SECRET)
-│   │   └── guards/           # AdminGuard, UserGuard, JwtAuthGuard (+ specs)
-│   ├── auth-test/            # Sample protected routes (module + controller)
+│   │   ├── controllers/      # AdminAuthController, AuthController
+│   │   ├── core/             # AuthedRequest, JwtPayload, Role types
+│   │   ├── dto/              # CreateAdminDto, CreateUserDto
+│   │   ├── guards/           # AdminAuthGuard, AuthGuard (User)
+│   │   ├── helper/           # Bcrypt password hashing & comparison
+│   │   └── services/         # AdminService, AdminRepository, UserService, UserAuthRepository
 │   ├── db-context/           # Database access module
 │   │   ├── db-context.module.ts  # Global module
-│   │   └── db-context.service.ts # Owns PrismaClient (`db`) + lifecycle
+│   │   └── db-context.service.ts # Owns PrismaClient (`db`) + pool lifecycle
 │   ├── excel/                # Excel export module
+│   │   ├── excel.module.ts
+│   │   ├── controllers/      # ExcelController (GET /export)
+│   │   ├── helpers/          # Excel generation helpers
+│   │   └── services/         # ExcelService (exceljs workbook creation)
 │   ├── generated/prisma/     # Generated Prisma client (git-ignored)
-│   └── news/                 # News & media module (Admin CRUD + public read)
-│       ├── dto/              # CreateNewsDto, UpdateNewsDto
-│       ├── entities/         # NewsEntity, NewsImageEntity
-│       ├── news-storage.ts   # Multer disk storage & file cleanup helper
-│       ├── news.controller.ts# REST endpoints (Admin CRUD + public read)
-│       ├── news.module.ts    # News feature module
-│       └── news.service.ts   # Business logic & db operations
+│   ├── news/                 # News & media module
+│   │   ├── news.module.ts
+│   │   ├── controllers/      # NewsController (Admin CRUD + public read)
+│   │   ├── core/             # NewsEntity types
+│   │   ├── dto/              # CreateNewsDto, UpdateNewsDto
+│   │   ├── helpers/          # Multer disk storage & deleteImageFile helper
+│   │   └── services/         # NewsService, NewsRepository, NewsImageService, NewsImageRepository
+│   └── workshops/            # Workshop management module
+│       ├── workshop.module.ts
+│       ├── controllers/      # WorkshopController (Admin CRUD + public read)
+│       ├── core/             # Workshop types
+│       ├── dto/              # CreateWorkshopDto, UpdateWorkshopDto
+│       └── services/         # WorkshopService, WorkshopRepository
 └── test/                     # End-to-end tests
     ├── app.e2e-spec.ts
     └── jest-e2e.json
@@ -199,6 +238,13 @@ npm run build           # Compiles TypeScript into dist/
 npm run start:prod      # Runs node dist/main
 ```
 
+### Docker Workflows
+```bash
+docker compose up -d --build   # Build and start MariaDB and app services in background
+docker compose logs -f app     # Follow application logs
+docker compose down            # Stop and remove containers (data persisted in volumes)
+```
+
 ### Linting & Formatting
 ```bash
 npm run lint            # ESLint check & auto-fix
@@ -231,22 +277,17 @@ npx prisma studio                         # Launch visual database GUI
 - Always use `class-validator` decorators (`@IsString()`, `@IsNotEmpty()`, `@IsOptional()`, `@IsEmail()`, etc.) and `class-transformer` (`@Type()`).
 - Document all DTO properties with `@ApiProperty()` or `@ApiPropertyOptional()` for OpenAPI / Swagger.
 
-### 2. Dependency Injection
+### 2. Dependency Injection & Repository Pattern
 - Never manually instantiate dependencies using `new ClassName()`.
-- Use constructor injection:
-  ```typescript
-  @Injectable()
-  export class ProductsService {
-    constructor(private readonly dbContext: DbContextService) {}
-  }
-  ```
+- Inject dependencies via constructors.
+- Maintain the separation of concerns: **Controller -> Service -> Repository -> `DbContextService`**.
 - Avoid circular dependencies. If two modules require each other, extract shared logic into a separate module or use `forwardRef()` only as a last resort.
 
 ### 3. Controller Design & REST Standards
-- Keep controllers lean; business logic belongs in services.
+- Keep controllers lean; business logic belongs in services and database queries belong in repositories.
 - Always apply appropriate HTTP decorators: `@Get()`, `@Post()`, `@Put()`, `@Patch()`, `@Delete()`.
 - Explicitly use HTTP status codes when deviating from defaults (e.g. `@HttpCode(HttpStatus.CREATED)`).
-- Protect sensitive endpoints with `@UseGuards(AdminGuard)` or `@UseGuards(UserGuard)` and document them with `@ApiBearerAuth()`.
+- Protect sensitive endpoints with `@UseGuards(AdminAuthGuard)` or `@UseGuards(AuthGuard)` and document them with `@ApiBearerAuth()`.
 
 ### 4. Error Handling
 - Use NestJS standard `HttpException` classes:
@@ -270,5 +311,6 @@ npx prisma studio                         # Launch visual database GUI
 ## 🔒 Security & Guardrails
 
 - **Never bypass `ValidationPipe`:** The application relies on `{ whitelist: true, forbidNonWhitelisted: true }` to strip unknown fields and prevent mass assignment attacks.
-- **Authentication**: All service tokens are verified locally using symmetric `JWT_SECRET` (HS256) via Passport and `@nestjs/jwt` (switched from IAM RS256 by user authorization).
-- **Never expose sensitive fields:** Exclude password hashes, internal IDs, or raw credentials in responses.
+- **Authentication**: All service tokens are verified locally using symmetric `JWT_SECRET` (HS256) directly with `@nestjs/jwt`.
+- **Passswords**: Always hash credentials using `hashPassword` (bcrypt) before saving to the database.
+- **Never expose sensitive fields:** Exclude password hashes, internal secrets, or raw credentials in responses.
