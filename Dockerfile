@@ -29,8 +29,6 @@ RUN npm ci --only=production && npm install prisma
 # Copy built files from builder stage
 COPY --from=builder /app/dist ./dist
 COPY --from=builder /app/generated ./generated
-COPY --from=builder /app/nit-helpdesk-front ./dist/nit-helpdesk-front
-
 # Copy entrypoint script
 COPY docker-entrypoint.sh ./
 RUN chmod +x docker-entrypoint.sh
