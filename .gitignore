@@ -60,7 +60,7 @@ uploads/
 /src/generated
 
 # Lockfile
-# package-lock.json
+package-lock.json
 
 prisma/migrations
 /assets/
