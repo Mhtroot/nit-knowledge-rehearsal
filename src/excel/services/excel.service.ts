@@ -39,7 +39,7 @@ export class ExcelService {
 
     for (const user of sortedUsers) {
       data.push([
-        user.ssn,
+        user.ssn ?? '',
         user.fullName,
         user.phone,
         String(user.childCount ?? 0),

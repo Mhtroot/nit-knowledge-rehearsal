@@ -105,7 +105,7 @@ This project is a scalable backend service built on the **NestJS 11** framework 
        - `POST /auth/login/admin`: Authenticate admin with username/password, returns JWT.
        - `POST /auth/admin`: Register a new admin account (hashes password with bcrypt).
      - `AuthController` (`/auth`):
-       - `POST /auth/user`: Register participant user with national code (`ssn`), full name, phone number (normalizes Iranian prefixes `+98`/`98` to `0`), and family metrics (`childCount`, `teenageCount`, `adultCount`).
+       - `POST /auth/user`: Register participant user with optional national code (`ssn`), full name, phone number (normalizes Iranian prefixes `+98`/`98` to `0`), and family metrics (`childCount`, `teenageCount`, `adultCount`).
        - `GET /auth/validate/user`: Validates user Bearer token (`AuthGuard`).
 
 5. **News & Media Layer (`src/news/`)**:

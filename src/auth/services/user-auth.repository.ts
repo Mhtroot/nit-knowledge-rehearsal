@@ -20,14 +20,15 @@ export class UserAuthRepository {
   }
 
   async get(data: Prisma.UserCreateInput): Promise<User | null> {
+    const conditions: Prisma.UserWhereInput[] = [{ phone: data.phone }];
+    if (data.ssn) {
+      conditions.push({ ssn: data.ssn });
+    }
     return await this.dbContext.db.user.findFirst({
       where: {
-        OR: [
-          { ssn: data.ssn },
-          { phone: data.phone}
-        ]
-      }
-    })
+        OR: conditions,
+      },
+    });
   }
 
   async getAll(): Promise<User[]> {
