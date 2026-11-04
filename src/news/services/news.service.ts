@@ -15,7 +15,10 @@ import { NewsImageService } from './news-image.service';
 export class NewsService {
   private readonly logger = new Logger(NewsService.name);
 
-  constructor(private readonly repo: NewsRepository, private readonly imageService: NewsImageService) {}
+  constructor(
+    private readonly repo: NewsRepository,
+    private readonly imageService: NewsImageService,
+  ) {}
 
   async create(createNewsDto: CreateNewsDto, files?: Express.Multer.File[]) {
     try {
@@ -67,12 +70,12 @@ export class NewsService {
 
     try {
       if (files && files.length > 0) {
-        await this.imageService.createMany(id, files)
+        await this.imageService.createMany(id, files);
       }
 
       const { images: _ignored, ...data } = updateNewsDto;
 
-      return this.repo.update(id, data)
+      return this.repo.update(id, data);
     } catch (error) {
       this.logger.error(`Failed to update news ${id}`, error);
       if (files && files.length > 0) {

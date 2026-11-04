@@ -1,4 +1,14 @@
-import { BadRequestException, Body, Controller, Get, HttpCode, HttpStatus, Post, Req, UseGuards } from '@nestjs/common';
+import {
+  BadRequestException,
+  Body,
+  Controller,
+  Get,
+  HttpCode,
+  HttpStatus,
+  Post,
+  Req,
+  UseGuards,
+} from '@nestjs/common';
 import { CreateAdminDto } from '../dto/create-admin.dto';
 import { AdminService } from '../services/admin.service';
 import { JwtPayload } from '../core/types';
@@ -13,7 +23,7 @@ export class AdminAuthController {
   constructor(
     private readonly adminServices: AdminService,
     private readonly jwt: JwtService,
-  ) { }
+  ) {}
 
   @Post('login/admin')
   async login(@Body() data: CreateAdminDto) {

@@ -20,7 +20,10 @@ export class ExcelController {
   constructor(private readonly excelServ: ExcelService) {}
 
   @Get()
-  @Header('Content-Type', 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet')
+  @Header(
+    'Content-Type',
+    'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+  )
   @Header('Content-Disposition', 'attachment; filename="users.xlsx"')
   async exportAsExcel(@Req() req: AuthedRequest) {
     this.logger.log(

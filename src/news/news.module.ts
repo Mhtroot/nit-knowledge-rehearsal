@@ -9,7 +9,12 @@ import { NewsImageService } from './services/news-image.service';
 @Module({
   imports: [AuthModule],
   controllers: [NewsController],
-  providers: [NewsService, NewsRepository, NewsImageRepository, NewsImageService],
+  providers: [
+    NewsService,
+    NewsRepository,
+    NewsImageRepository,
+    NewsImageService,
+  ],
   exports: [NewsService],
 })
 export class NewsModule {}

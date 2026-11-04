@@ -16,7 +16,13 @@ import { AdminAuthController } from './controllers/admin-auth.controller';
       signOptions: { expiresIn: '1d' },
     }),
   ],
-  providers: [UserAuthRepository, UserServices, AuthGuard, AdminRepository, AdminService],
+  providers: [
+    UserAuthRepository,
+    UserServices,
+    AuthGuard,
+    AdminRepository,
+    AdminService,
+  ],
   exports: [UserServices],
   controllers: [AuthController, AdminAuthController],
 })

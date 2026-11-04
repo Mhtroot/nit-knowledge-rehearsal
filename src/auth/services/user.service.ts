@@ -1,11 +1,16 @@
-import { ConflictException, Injectable, InternalServerErrorException, NotFoundException } from "@nestjs/common";
-import { UserAuthRepository } from "./user-auth.repository";
-import { Prisma } from "src/generated/prisma/client";
-import { User } from "../core/types";
+import {
+  ConflictException,
+  Injectable,
+  InternalServerErrorException,
+  NotFoundException,
+} from '@nestjs/common';
+import { UserAuthRepository } from './user-auth.repository';
+import { Prisma } from 'src/generated/prisma/client';
+import { User } from '../core/types';
 
 @Injectable()
 export class UserServices {
-  constructor(private readonly repo: UserAuthRepository) { }
+  constructor(private readonly repo: UserAuthRepository) {}
 
   async create(data: Prisma.UserCreateInput): Promise<User> {
     const exists = await this.repo.get(data);
@@ -15,7 +20,7 @@ export class UserServices {
         message: 'user already signed',
       });
     }
-    
+
     const newUser = await this.repo.create(data);
     if (!newUser) {
       throw new InternalServerErrorException({

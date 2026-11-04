@@ -1,15 +1,31 @@
-import { Body, Controller, Delete, Get, HttpCode, HttpStatus, Param, Post, Put, UploadedFile, UseGuards, UseInterceptors } from "@nestjs/common";
-import { WorkshopService } from "../services/workshop.service";
-import { ApiBearerAuth, ApiConsumes } from "@nestjs/swagger";
-import { AdminAuthGuard } from "src/auth/guards/admin.guard";
-import { CreateWorkshopDto } from "../dto/create-workshop.dto";
-import { FileInterceptor } from "@nestjs/platform-express";
-import { deleteImageFile, newsMulterOptions } from "src/news/helpers/news-storage";
-import { UpdateWorkshopDto } from "../dto/update-workshop.dto";
+import {
+  Body,
+  Controller,
+  Delete,
+  Get,
+  HttpCode,
+  HttpStatus,
+  Param,
+  Post,
+  Put,
+  UploadedFile,
+  UseGuards,
+  UseInterceptors,
+} from '@nestjs/common';
+import { WorkshopService } from '../services/workshop.service';
+import { ApiBearerAuth, ApiConsumes } from '@nestjs/swagger';
+import { AdminAuthGuard } from 'src/auth/guards/admin.guard';
+import { CreateWorkshopDto } from '../dto/create-workshop.dto';
+import { FileInterceptor } from '@nestjs/platform-express';
+import {
+  deleteImageFile,
+  newsMulterOptions,
+} from 'src/news/helpers/news-storage';
+import { UpdateWorkshopDto } from '../dto/update-workshop.dto';
 
 @Controller('workshop')
 export class WorkshopController {
-  constructor(private readonly service: WorkshopService) { }
+  constructor(private readonly service: WorkshopService) {}
 
   @Get()
   async getAll() {
@@ -31,7 +47,7 @@ export class WorkshopController {
     @Body() data: CreateWorkshopDto,
     @UploadedFile() file?: Express.Multer.File,
   ) {
-    if (file) data.bannerPath = `/assets/images/${file.filename}`
+    if (file) data.bannerPath = `/assets/images/${file.filename}`;
     return await this.service.create(data);
   }
 
@@ -44,7 +60,7 @@ export class WorkshopController {
     @Param('id') id: number,
     @Body() data: UpdateWorkshopDto,
     @UploadedFile() file?: Express.Multer.File,
-  ) { 
+  ) {
     if (file) data.bannerPath = `/assets/images/${file.filename}`;
 
     return await this.service.update(id, data);
