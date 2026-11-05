@@ -6,7 +6,7 @@ export interface Admin {
 
 export interface User {
   id: number;
-  ssn: string;
+  ssn: string | null;
   fullName: string;
   phone: string;
   childCount: number;

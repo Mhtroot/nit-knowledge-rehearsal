@@ -8,7 +8,13 @@ import { NewsModule } from './news/news.module';
 import { WorkshopModule } from './workshops/workshop.module';
 
 @Module({
-  imports: [DbContextModule, AuthModule, ExcelModule, NewsModule, WorkshopModule],
+  imports: [
+    DbContextModule,
+    AuthModule,
+    ExcelModule,
+    NewsModule,
+    WorkshopModule,
+  ],
   controllers: [AppController],
   providers: [AppService],
 })

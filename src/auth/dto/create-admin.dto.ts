@@ -1,8 +1,8 @@
-import { ApiProperty } from "@nestjs/swagger";
-import { IsString, MinLength } from "class-validator";
+import { ApiProperty } from '@nestjs/swagger';
+import { IsString, MinLength } from 'class-validator';
 
 export class CreateAdminDto {
-  @ApiProperty({ description: "admin's username"})
+  @ApiProperty({ description: "admin's username" })
   @IsString()
   username: string;
 

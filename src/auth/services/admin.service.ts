@@ -1,11 +1,16 @@
-import { ConflictException, Injectable, InternalServerErrorException, NotFoundException } from "@nestjs/common";
-import { AdminRepository } from "./admin.repository";
-import { Prisma } from "src/generated/prisma/client";
-import { Admin } from "src/generated/prisma/browser";
+import {
+  ConflictException,
+  Injectable,
+  InternalServerErrorException,
+  NotFoundException,
+} from '@nestjs/common';
+import { AdminRepository } from './admin.repository';
+import { Prisma } from 'src/generated/prisma/client';
+import { Admin } from 'src/generated/prisma/browser';
 
 @Injectable()
 export class AdminService {
-  constructor(private readonly repo: AdminRepository) { }
+  constructor(private readonly repo: AdminRepository) {}
 
   async create(data: Prisma.AdminCreateInput): Promise<Admin> {
     const exists = await this.repo.getByUsername(data.username);

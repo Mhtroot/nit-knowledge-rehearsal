@@ -863,16 +863,50 @@ async function loadAdminNews() {
 
       item.innerHTML = `
         <div class="admin-news-item-top">
-          <div>
-            <h4 class="admin-news-item-title">${article.title} <small style="color: var(--cyan); font-weight: normal;">(شناسه: ${article.id})</small></h4>
-            <p class="admin-news-item-desc">${article.description}</p>
+          <div class="admin-news-item-info">
+            <h4 class="admin-news-item-title">${escapeHtml(article.title)} <small style="color: var(--cyan); font-weight: normal;">(شناسه: ${article.id})</small></h4>
+            <p class="admin-news-item-desc">${escapeHtml(article.description)}</p>
           </div>
-          <button type="button" class="btn-del-article" data-id="${article.id}">
-            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
-              <path stroke-linecap="round" stroke-linejoin="round" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/>
-            </svg>
-            <span>حذف کل خبر</span>
-          </button>
+          <div class="admin-item-actions">
+            <button type="button" class="btn-action-edit btn-edit-news" data-id="${article.id}">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
+                <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path>
+                <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path>
+              </svg>
+              <span>ویرایش متن</span>
+            </button>
+            <button type="button" class="btn-del-article" data-id="${article.id}">
+              <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/>
+              </svg>
+              <span>حذف کل خبر</span>
+            </button>
+          </div>
+        </div>
+
+        <!-- Inline Edit Panel -->
+        <div class="admin-edit-panel admin-edit-news-panel" style="display: none;">
+          <div class="form-group">
+            <label class="form-label">
+              <span>عنوان خبر / اطلاعیه</span>
+              <span class="form-label-hint">الزامی</span>
+            </label>
+            <input type="text" class="form-input edit-news-title-input" value="${escapeHtml(article.title)}">
+          </div>
+          <div class="form-group">
+            <label class="form-label">
+              <span>متن خبر / توضیحات کامل</span>
+              <span class="form-label-hint">الزامی</span>
+            </label>
+            <textarea class="form-input form-textarea edit-news-desc-input" rows="4">${escapeHtml(article.description)}</textarea>
+          </div>
+          <div class="admin-edit-actions">
+            <button type="button" class="btn-save-edit btn-save-news-edit">
+              <span class="spinner" aria-hidden="true"></span>
+              <span class="btn-text-content">ذخیره تغییرات</span>
+            </button>
+            <button type="button" class="btn-cancel-edit btn-cancel-news-edit">انصراف</button>
+          </div>
         </div>
 
         <div class="admin-news-gallery">
@@ -888,6 +922,68 @@ async function loadAdminNews() {
           </div>
         </div>
       `;
+
+      // Handle toggle edit panel
+      const editBtn = item.querySelector('.btn-edit-news');
+      const editPanel = item.querySelector('.admin-edit-news-panel');
+      const cancelBtn = item.querySelector('.btn-cancel-news-edit');
+      const saveBtn = item.querySelector('.btn-save-news-edit');
+      const titleInput = item.querySelector('.edit-news-title-input');
+      const descInput = item.querySelector('.edit-news-desc-input');
+
+      editBtn.addEventListener('click', () => {
+        const isHidden = editPanel.style.display === 'none';
+        editPanel.style.display = isHidden ? 'flex' : 'none';
+        if (isHidden) {
+          titleInput.value = article.title;
+          descInput.value = article.description;
+          titleInput.focus();
+        }
+      });
+
+      cancelBtn.addEventListener('click', () => {
+        editPanel.style.display = 'none';
+      });
+
+      saveBtn.addEventListener('click', async () => {
+        const newTitle = titleInput.value.trim();
+        const newDesc = descInput.value.trim();
+
+        if (!newTitle) {
+          showToast('عنوان خبر نمی‌تواند خالی باشد.', 'error');
+          titleInput.focus();
+          return;
+        }
+
+        if (!newDesc) {
+          showToast('متن خبر نمی‌تواند خالی باشد.', 'error');
+          descInput.focus();
+          return;
+        }
+
+        setLoading(saveBtn, true);
+
+        try {
+          const updateRes = await apiFetch(`/news/${article.id}`, {
+            method: 'PATCH',
+            auth: 'admin',
+            body: JSON.stringify({ title: newTitle, description: newDesc })
+          });
+
+          if (updateRes.ok) {
+            showToast('متن خبر با موفقیت ویرایش شد.', 'success');
+            loadAdminNews();
+            loadPublicNews();
+          } else {
+            const errData = await updateRes.json().catch(() => ({}));
+            showToast(errData.message || 'خطا در ویرایش خبر.', 'error');
+          }
+        } catch {
+          showToast('خطا در برقراری ارتباط با سرور.', 'error');
+        } finally {
+          setLoading(saveBtn, false);
+        }
+      });
 
       // Handle delete entire article
       item.querySelector('.btn-del-article').addEventListener('click', async () => {
@@ -1253,20 +1349,142 @@ async function loadAdminWorkshops() {
       }
 
       item.innerHTML = `
-        <div class="admin-workshop-item-right">
-          ${thumbHtml}
-          <div class="admin-workshop-details">
-            <h4 class="admin-workshop-title">${escapeHtml(ws.title)} <small style="color: var(--cyan); font-weight: normal;">(شناسه: ${ws.id})</small></h4>
-            <p class="admin-workshop-desc-preview">${escapeHtml(ws.description)}</p>
+        <div class="admin-workshop-item-main">
+          <div class="admin-workshop-item-right">
+            ${thumbHtml}
+            <div class="admin-workshop-details">
+              <h4 class="admin-workshop-title">${escapeHtml(ws.title)} <small style="color: var(--cyan); font-weight: normal;">(شناسه: ${ws.id})</small></h4>
+              <p class="admin-workshop-desc-preview">${escapeHtml(ws.description)}</p>
+            </div>
+          </div>
+          <div class="admin-item-actions">
+            <button type="button" class="btn-action-edit btn-edit-workshop" data-id="${ws.id}">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
+                <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path>
+                <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path>
+              </svg>
+              <span>ویرایش</span>
+            </button>
+            <button type="button" class="btn-del-workshop" data-id="${ws.id}">
+              <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/>
+              </svg>
+              <span>حذف کارگاه</span>
+            </button>
           </div>
         </div>
-        <button type="button" class="btn-del-workshop" data-id="${ws.id}">
-          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
-            <path stroke-linecap="round" stroke-linejoin="round" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/>
-          </svg>
-          <span>حذف کارگاه</span>
-        </button>
+
+        <!-- Inline Edit Panel -->
+        <div class="admin-edit-panel admin-edit-workshop-panel" style="display: none;">
+          <div class="form-group">
+            <label class="form-label">
+              <span>عنوان کارگاه</span>
+              <span class="form-label-hint">الزامی</span>
+            </label>
+            <input type="text" class="form-input edit-ws-title-input" value="${escapeHtml(ws.title)}">
+          </div>
+          <div class="form-group">
+            <label class="form-label">
+              <span>توضیحات و سرفصل‌های کارگاه</span>
+              <span class="form-label-hint">الزامی</span>
+            </label>
+            <textarea class="form-input form-textarea edit-ws-desc-input" rows="4">${escapeHtml(ws.description)}</textarea>
+          </div>
+          <div class="form-group">
+            <label class="form-label">
+              <span>تغییر پوستر / بنر کارگاه (اختیاری)</span>
+              <span class="form-label-hint">در صورت انتخاب، بنر جدید جایگزین می‌شود</span>
+            </label>
+            <input type="file" accept="image/*" class="form-input edit-ws-banner-input">
+          </div>
+          <div class="admin-edit-actions">
+            <button type="button" class="btn-save-edit btn-save-ws-edit">
+              <span class="spinner" aria-hidden="true"></span>
+              <span class="btn-text-content">ذخیره تغییرات</span>
+            </button>
+            <button type="button" class="btn-cancel-edit btn-cancel-ws-edit">انصراف</button>
+          </div>
+        </div>
       `;
+
+      // Handle toggle edit workshop panel
+      const editWsBtn = item.querySelector('.btn-edit-workshop');
+      const editWsPanel = item.querySelector('.admin-edit-workshop-panel');
+      const cancelWsBtn = item.querySelector('.btn-cancel-ws-edit');
+      const saveWsBtn = item.querySelector('.btn-save-ws-edit');
+      const titleWsInput = item.querySelector('.edit-ws-title-input');
+      const descWsInput = item.querySelector('.edit-ws-desc-input');
+      const bannerWsInput = item.querySelector('.edit-ws-banner-input');
+
+      editWsBtn.addEventListener('click', () => {
+        const isHidden = editWsPanel.style.display === 'none';
+        editWsPanel.style.display = isHidden ? 'flex' : 'none';
+        if (isHidden) {
+          titleWsInput.value = ws.title;
+          descWsInput.value = ws.description;
+          bannerWsInput.value = '';
+          titleWsInput.focus();
+        }
+      });
+
+      cancelWsBtn.addEventListener('click', () => {
+        editWsPanel.style.display = 'none';
+      });
+
+      saveWsBtn.addEventListener('click', async () => {
+        const newTitle = titleWsInput.value.trim();
+        const newDesc = descWsInput.value.trim();
+        const newBannerFile = bannerWsInput.files && bannerWsInput.files[0] ? bannerWsInput.files[0] : null;
+
+        if (!newTitle) {
+          showToast('عنوان کارگاه نمی‌تواند خالی باشد.', 'error');
+          titleWsInput.focus();
+          return;
+        }
+
+        if (!newDesc) {
+          showToast('توضیحات کارگاه نمی‌تواند خالی باشد.', 'error');
+          descWsInput.focus();
+          return;
+        }
+
+        setLoading(saveWsBtn, true);
+
+        try {
+          let updateRes;
+          if (newBannerFile) {
+            const formData = new FormData();
+            formData.append('title', newTitle);
+            formData.append('description', newDesc);
+            formData.append('bannerPath', newBannerFile);
+
+            updateRes = await apiFetch(`/workshop/${ws.id}`, {
+              method: 'PUT',
+              auth: 'admin',
+              body: formData
+            });
+          } else {
+            updateRes = await apiFetch(`/workshop/${ws.id}`, {
+              method: 'PUT',
+              auth: 'admin',
+              body: JSON.stringify({ title: newTitle, description: newDesc })
+            });
+          }
+
+          if (updateRes.ok) {
+            showToast('کارگاه با موفقیت ویرایش شد.', 'success');
+            loadAdminWorkshops();
+            loadPublicWorkshops();
+          } else {
+            const errData = await updateRes.json().catch(() => ({}));
+            showToast(errData.message || 'خطا در ویرایش کارگاه.', 'error');
+          }
+        } catch {
+          showToast('خطا در برقراری ارتباط با سرور.', 'error');
+        } finally {
+          setLoading(saveWsBtn, false);
+        }
+      });
 
       item.querySelector('.btn-del-workshop').addEventListener('click', async () => {
         if (!confirm(`آیا از حذف کارگاه «${ws.title}» اطمینان دارید؟`)) return;
@@ -1503,20 +1721,21 @@ document.addEventListener('DOMContentLoaded', () => {
       e.preventDefault();
       clearInlineError(signupErrorBox);
 
-      const fullName = fullNameInput.value.trim();
-      let ssn = toEnglishDigits(ssnInput.value.trim());
-      let phone = toEnglishDigits(phoneInput.value.trim());
+      const fullName = fullNameInput ? fullNameInput.value.trim() : '';
+      let ssn = ssnInput ? toEnglishDigits(ssnInput.value.trim()) : '';
+      let phone = phoneInput ? toEnglishDigits(phoneInput.value.trim()) : '';
 
       // Client-side validations
       if (!fullName) {
         showInlineError(signupErrorBox, signupErrorMsg, 'لطفاً نام و نام خانوادگی خود را وارد نمایید.');
-        fullNameInput.focus();
+        if (fullNameInput) fullNameInput.focus();
         return;
       }
 
-      if (!ssn || !/^\d{10}$/.test(ssn)) {
-        showInlineError(signupErrorBox, signupErrorMsg, 'کد ملی باید یک عدد ۱۰ رقمی باشد.');
-        ssnInput.focus();
+      // SSN is optional, but if entered, must be a valid 10-digit number
+      if (ssn && !/^\d{10}$/.test(ssn)) {
+        showInlineError(signupErrorBox, signupErrorMsg, 'کد ملی در صورت وارد شدن باید یک عدد ۱۰ رقمی باشد.');
+        if (ssnInput) ssnInput.focus();
         return;
       }
 
@@ -1528,7 +1747,7 @@ document.addEventListener('DOMContentLoaded', () => {
       const phoneRegex = /^(\+98|0)9\d{9}$/;
       if (!phoneRegex.test(phone)) {
         showInlineError(signupErrorBox, signupErrorMsg, 'شماره همراه باید معتبر باشد (مانند: ۰۹۱۱xxxxxxx).');
-        phoneInput.focus();
+        if (phoneInput) phoneInput.focus();
         return;
       }
 
@@ -1539,9 +1758,20 @@ document.addEventListener('DOMContentLoaded', () => {
       setLoading(signupBtn, true);
 
       try {
+        const payload = {
+          fullName,
+          phone,
+          childCount,
+          teenageCount,
+          adultCount,
+        };
+        if (ssn) {
+          payload.ssn = ssn;
+        }
+
         const res = await apiFetch('/auth/user', {
           method: 'POST',
-          body: JSON.stringify({ ssn, fullName, phone, childCount, teenageCount, adultCount })
+          body: JSON.stringify(payload)
         });
 
         const data = await res.json().catch(() => ({}));
@@ -1552,7 +1782,7 @@ document.addEventListener('DOMContentLoaded', () => {
           updateAuthState();
           signupForm.reset();
         } else if (res.status === 409) {
-          showInlineError(signupErrorBox, signupErrorMsg, 'این کد ملی یا شماره همراه قبلاً ثبت‌نام شده است.');
+          showInlineError(signupErrorBox, signupErrorMsg, ssn ? 'این کد ملی یا شماره همراه قبلاً ثبت‌نام شده است.' : 'این شماره همراه قبلاً ثبت‌نام شده است.');
         } else {
           const message = Array.isArray(data.message)
             ? data.message.join('، ')
@@ -1571,8 +1801,8 @@ document.addEventListener('DOMContentLoaded', () => {
   if (btnReRegister) {
     btnReRegister.addEventListener('click', () => {
       logout();
-      const ssnEl = document.getElementById('ssn');
-      if (ssnEl) ssnEl.focus();
+      const firstInput = document.getElementById('fullName') || document.getElementById('ssn');
+      if (firstInput) firstInput.focus();
     });
   }
 

@@ -16,7 +16,7 @@ model Admin {
 
 model User {
   id                Int     @id @default(autoincrement())
-  ssn               String  @unique
+  ssn               String? @unique
   fullName          String
   phone             String  @unique
   childCount        Int     @default(0)
@@ -43,6 +43,6 @@ model NewsImage {
 model Workshop {
   id          Int     @id @default(autoincrement())
   title       String
-  description String
+  description String  @db.Text
   bannerPath  String?
 }

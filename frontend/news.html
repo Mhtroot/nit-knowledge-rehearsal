@@ -35,7 +35,7 @@
       <!-- Right: University & Event Brand -->
       <a href="index.html" class="brand" aria-label="صفحه اصلی شب علم">
         <div class="brand-emblem-wrap">
-          <img src="assets/logo.png" alt="آرم دانشگاه صنعتی نوشیروانی بابل" class="brand-logo" width="36" height="36">
+          <img src="assets/logo-white.png" alt="آرم دانشگاه صنعتی نوشیروانی بابل" class="brand-logo" width="36" height="36">
         </div>
         <div class="brand-info">
           <span class="brand-title">شب علم</span>
@@ -43,21 +43,33 @@
         </div>
       </a>
 
+      <!-- Mobile Navigation Hamburger Toggle -->
+      <button class="mobile-toggle" id="mobile-toggle" aria-label="منوی ناوبری" aria-expanded="false" aria-controls="nav-content">
+        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
+          <line x1="3" y1="12" x2="21" y2="12"></line>
+          <line x1="3" y1="6" x2="21" y2="6"></line>
+          <line x1="3" y1="18" x2="21" y2="18"></line>
+        </svg>
+      </button>
+
       <!-- Navigation Content -->
-      <nav class="nav-content" style="display: flex; align-items: center; gap: 1.5rem;" aria-label="ناوبری اصلی">
-        <ul class="nav-links" style="display: flex;">
+      <nav class="nav-content" id="nav-content" aria-label="ناوبری اصلی">
+        <ul class="nav-links">
           <li><a href="index.html" class="nav-link">صفحه اصلی</a></li>
-          <li><a href="index.html#themes" class="nav-link">محورهای علمی</a></li>
+          <li><a href="index.html#themes" class="nav-link">محورهای شب علم</a></li>
           <li><a href="index.html#workshops" class="nav-link">کارگاه‌ها</a></li>
+          <li><a href="index.html#sponsors" class="nav-link">حامیان</a></li>
           <li><a href="index.html#signup" class="nav-link">ثبت‌نام</a></li>
         </ul>
 
-        <a href="index.html" class="btn-ghost btn-sm" style="display: inline-flex; align-items: center; gap: 0.4rem;">
-          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" aria-hidden="true">
-            <path stroke-linecap="round" stroke-linejoin="round" d="M10 19l-7-7m0 0l7-7m-7 7h18"/>
-          </svg>
-          <span>بازگشت به صفحه اصلی</span>
-        </a>
+        <div class="nav-auth">
+          <a href="index.html" class="btn-ghost btn-sm" style="display: inline-flex; align-items: center; gap: 0.4rem;">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" aria-hidden="true">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M10 19l-7-7m0 0l7-7m-7 7h18"/>
+            </svg>
+            <span>بازگشت به صفحه اصلی</span>
+          </a>
+        </div>
       </nav>
     </div>
   </header>
@@ -84,14 +96,15 @@
               <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
             </svg>
             <input 
-              type="search" 
+              type="text" 
+              inputmode="search"
               id="news-search-input" 
               class="news-search-input" 
               placeholder="جستجو در عنوان یا متن اطلاعیه‌ها و مقالات..."
               aria-label="جستجوی اخبار"
               autocomplete="off"
             >
-            <button type="button" class="news-search-clear" id="news-search-clear" aria-label="پاک کردن جستجو" style="display: none;">&times;</button>
+            <button type="button" class="news-search-clear" id="news-search-clear" aria-label="پاک کردن جستجو">&times;</button>
           </div>
           <div class="news-search-stats" id="news-search-stats">در حال بارگذاری اخبار...</div>
         </div>
@@ -150,9 +163,10 @@
           <h4 class="footer-col-title">دسترسی سریع</h4>
           <ul class="footer-links">
             <li><a href="index.html">صفحه اصلی لندینگ</a></li>
-            <li><a href="index.html#themes">محورهای علمی و پوستر</a></li>
+            <li><a href="index.html#themes">محورهای شب علم و پوستر</a></li>
             <li><a href="index.html#workshops">کارگاه‌های آموزشی</a></li>
             <li><a href="index.html#features">برنامه‌ها و امکانات</a></li>
+            <li><a href="index.html#sponsors">حامیان رویداد</a></li>
             <li><a href="index.html#signup">ثبت‌نام در رویداد</a></li>
           </ul>
         </div>
