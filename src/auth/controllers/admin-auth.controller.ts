@@ -46,6 +46,8 @@ export class AdminAuthController {
     };
   }
 
+  @ApiBearerAuth()
+  @UseGuards(AdminAuthGuard)
   @Post('admin')
   @HttpCode(HttpStatus.CREATED)
   async create(@Body() data: CreateAdminDto) {
