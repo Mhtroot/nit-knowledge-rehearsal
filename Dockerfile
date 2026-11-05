@@ -37,6 +37,7 @@ RUN npm install --omit=dev --no-audit --no-fund
 
 # Copy built files from builder stage
 COPY --from=builder /app/dist ./dist
+COPY --from=builder /app/frontend ./frontend
 # COPY --from=builder /app/generated ./generated
 
 # Copy entrypoint script
