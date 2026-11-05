@@ -1,4 +1,4 @@
-# AGENTS.md - Agent Instructions & Architecture Guide
+﻿# AGENTS.md - Agent Instructions & Architecture Guide
 
 Welcome to **AgenticBots_ServiceBase**. This file serves as the single source of truth and operating handbook for AI agents (and human developers) working on this codebase.
 
@@ -135,7 +135,11 @@ This project is a scalable backend service built on the **NestJS 11** framework 
    - **`docker-entrypoint.sh`**: Runs `npx prisma db push` before booting the application via `exec node dist/main.js`.
    - **`docker-compose.yml`**:
      - `db`: MariaDB 11 service (`elm-db`) with persistent volume `db_data` and internal health checks.
-     - `app`: NestJS service dependent on healthy `db`, with mounted volume `app_assets:/app/assets` to persist uploaded media files.
+     - `app`: NestJS service (`app`) dependent on healthy `db`, with mounted volume `app_assets:/app/assets` to persist uploaded media files. Runs internally on port 4567.
+     - `web`: Nginx reverse proxy service (`elm-web`) handling HTTP (port 80) reverse proxying, Gzip compression, rate limiting, and security headers.
+   - **`docker-compose.tls.yml`**: Production HTTPS overlay activating SSL termination on port 443 with HTTP/2 and modern TLS (v1.2/v1.3). Enabled via `COMPOSE_FILE=docker-compose.yml:docker-compose.tls.yml` in `.env`.
+   - **`certs/`**: Contains SSL certificates (`fullchain.pem` and `privkey.pem` for wildcard `*.nit.ac.ir`), git-ignored for security.
+   - **`nginx/`**: Nginx modular configuration (`common.conf`, `http.conf`, `https.conf`, and `snippets/` for security headers, locations, and proxying).
 
 ---
 
@@ -148,11 +152,21 @@ This project is a scalable backend service built on the **NestJS 11** framework 
 ├── assets/                   # Static runtime storage (git-ignored)
 │   ├── excel/                # Exported/temporary excel files
 │   └── images/               # Uploaded news & workshop images
-├── docker-compose.yml        # Docker compose stack (MariaDB + NestJS app)
+├── certs/                    # SSL certificates (git-ignored, fullchain.pem, privkey.pem)
+├── docker-compose.yml        # Base docker compose stack (MariaDB + NestJS app + Nginx web)
+├── docker-compose.tls.yml    # Production HTTPS overlay (port 443 + SSL certificate mount)
 ├── docker-entrypoint.sh      # Container entrypoint (prisma db push + node start)
 ├── Dockerfile                # Multi-stage production container build
 ├── frontend/                 # Static frontend client files
 ├── nest-cli.json             # NestJS CLI configuration
+├── nginx/                    # Reverse proxy configurations
+│   ├── common.conf           # Gzip, rate-limiting, and HSTS map
+│   ├── http.conf             # Port 80 plain HTTP server
+│   ├── https.conf            # Port 80 redirect + Port 443 SSL server
+│   └── snippets/             # Modular Nginx configuration snippets
+│       ├── locations.inc     # Endpoint locations and asset caching
+│       ├── proxy-app.inc     # Upstream proxy headers and timeouts
+│       └── security-headers.inc # HSTS, CSP, X-Frame-Options
 ├── package.json              # Project scripts and dependencies
 ├── prisma.config.ts          # Prisma v7 configuration
 ├── prisma/

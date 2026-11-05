@@ -64,3 +64,10 @@ package-lock.json
 
 prisma/migrations
 /assets/
+
+
+# SSL certificates and private keys
+certs/
+*.key
+*.pfx
+*.crt
