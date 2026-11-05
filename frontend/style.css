@@ -66,7 +66,7 @@ html {
   line-height: 1.8;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
-  overflow-x: hidden;
+  overflow-x: clip;
 }
 
 body {
@@ -74,7 +74,7 @@ body {
   display: flex;
   flex-direction: column;
   position: relative;
-  overflow-x: hidden;
+  overflow-x: clip;
   background: 
     radial-gradient(circle at 50% 0%, rgba(56, 189, 248, 0.14) 0%, transparent 48%),
     radial-gradient(circle at 90% 20%, rgba(139, 92, 246, 0.08) 0%, transparent 40%),
@@ -152,11 +152,12 @@ button {
    Navbar
    ========================================================================== */
 .navbar {
+  position: -webkit-sticky;
   position: sticky;
   top: 0;
-  z-index: 100;
+  z-index: 1000;
   width: 100%;
-  background: rgba(6, 8, 13, 0.72);
+  background: rgba(6, 8, 13, 0.82);
   backdrop-filter: blur(16px);
   -webkit-backdrop-filter: blur(16px);
   border-bottom: 1px solid var(--border-subtle);
@@ -164,9 +165,9 @@ button {
 }
 
 .navbar.nav-scrolled {
-  background: rgba(6, 8, 13, 0.94);
-  border-bottom-color: rgba(56, 189, 248, 0.2);
-  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.6);
+  background: rgba(6, 8, 13, 0.96);
+  border-bottom-color: rgba(56, 189, 248, 0.25);
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.7);
 }
 
 .navbar-inner {
@@ -1252,6 +1253,23 @@ button {
   transition: var(--transition);
 }
 
+/* Remove native browser search clear & cancel buttons */
+.news-search-input::-webkit-search-cancel-button,
+.news-search-input::-webkit-search-decoration,
+.news-search-input::-webkit-search-results-button,
+.news-search-input::-webkit-search-results-decoration {
+  -webkit-appearance: none;
+  appearance: none;
+  display: none !important;
+}
+
+.news-search-input::-ms-clear,
+.news-search-input::-ms-reveal {
+  display: none !important;
+  width: 0;
+  height: 0;
+}
+
 .news-search-input:focus {
   outline: none;
   border-color: var(--cyan);
@@ -1261,13 +1279,26 @@ button {
 
 .news-search-clear {
   position: absolute;
-  left: 1rem;
+  left: 0.9rem;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 28px;
+  height: 28px;
+  display: none;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.08);
+  color: var(--text-muted);
   font-size: 1.25rem;
-  color: var(--text-dim);
   line-height: 1;
+  transition: var(--transition);
+  cursor: pointer;
+  z-index: 2;
 }
 
 .news-search-clear:hover {
+  background: rgba(255, 255, 255, 0.2);
   color: #ffffff;
 }
 

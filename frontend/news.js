@@ -380,17 +380,49 @@ document.addEventListener('DOMContentLoaded', () => {
     }
   });
 
+  // Mobile Navigation Drawer Toggle
+  const mobileToggle = document.getElementById('mobile-toggle');
+  const navContent = document.getElementById('nav-content');
+  if (mobileToggle && navContent) {
+    mobileToggle.addEventListener('click', () => {
+      const expanded = mobileToggle.getAttribute('aria-expanded') === 'true';
+      mobileToggle.setAttribute('aria-expanded', String(!expanded));
+      navContent.classList.toggle('mobile-open');
+    });
+
+    // Close drawer when any link is clicked
+    navContent.querySelectorAll('.nav-link, a').forEach(link => {
+      link.addEventListener('click', () => {
+        navContent.classList.remove('mobile-open');
+        mobileToggle.setAttribute('aria-expanded', 'false');
+      });
+    });
+  }
+
+  // Navbar blur & elevate on scroll
+  const navbar = document.getElementById('navbar');
+  if (navbar) {
+    window.addEventListener('scroll', () => {
+      if (window.scrollY > 25) {
+        navbar.classList.add('nav-scrolled');
+      } else {
+        navbar.classList.remove('nav-scrolled');
+      }
+    }, { passive: true });
+  }
+
   // Search logic
   const searchInput = document.getElementById('news-search-input');
   const searchClear = document.getElementById('news-search-clear');
 
   if (searchInput) {
     searchInput.addEventListener('input', () => {
-      const term = searchInput.value.trim().toLowerCase();
+      const hasVal = searchInput.value.length > 0;
       if (searchClear) {
-        searchClear.style.display = term ? 'block' : 'none';
+        searchClear.style.display = hasVal ? 'inline-flex' : 'none';
       }
 
+      const term = searchInput.value.trim().toLowerCase();
       if (!term) {
         renderArticles(allArticles);
         return;
