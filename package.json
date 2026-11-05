@@ -1,5 +1,5 @@
 {
-  "name": "AgenticBots_ServiceBase",
+  "name": "shabelm-nit",
   "version": "0.0.1",
   "description": "",
   "author": "",
@@ -27,6 +27,7 @@
     "@nestjs/passport": "^11.0.5",
     "@nestjs/platform-express": "^11.0.1",
     "@nestjs/swagger": "^11.2.6",
+    "@nestjs/throttler": "^6.7.1",
     "@prisma/adapter-mariadb": "^7.8.0",
     "@prisma/client": "^7.8.0",
     "bcrypt": "^6.0.0",
