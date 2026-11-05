@@ -6,6 +6,7 @@ import {
   HttpCode,
   HttpStatus,
   Param,
+  ParseIntPipe,
   Post,
   Put,
   UploadedFile,
@@ -61,7 +62,14 @@ export class WorkshopController {
     @Body() data: UpdateWorkshopDto,
     @UploadedFile() file?: Express.Multer.File,
   ) {
-    if (file) data.bannerPath = `/assets/images/${file.filename}`;
+    if (file) {
+      const old = await this.service.getOne(id);
+      if (old.bannerPath && old.bannerPath !== '') {
+        const parts = old.bannerPath.split('/');
+        await deleteImageFile(parts[parts.length - 1]);
+      }
+      data.bannerPath = `/assets/images/${file.filename}`;
+    }
 
     return await this.service.update(id, data);
   }
@@ -71,8 +79,10 @@ export class WorkshopController {
   @Delete(':id')
   async delete(@Param('id') id: number) {
     const workshop = await this.service.getOne(id);
-    if (workshop.bannerPath && workshop.bannerPath !== '')
-      await deleteImageFile(workshop.bannerPath.split('/')[3]);
+    if (workshop.bannerPath && workshop.bannerPath !== '') {
+      const parts = workshop.bannerPath.split('/');
+      await deleteImageFile(parts[parts.length - 1]);
+    }
 
     return await this.service.delete(id);
   }

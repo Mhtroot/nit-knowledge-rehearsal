@@ -1,5 +1,5 @@
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
-import { IsOptional, IsString } from 'class-validator';
+import { IsOptional, IsString, MaxLength } from 'class-validator';
 
 export class CreateWorkshopDto {
   @ApiProperty({ description: 'title of the workshop' })
@@ -8,6 +8,7 @@ export class CreateWorkshopDto {
 
   @ApiProperty({ description: 'description of the workshop' })
   @IsString()
+  @MaxLength(512)
   description: string;
 
   @ApiPropertyOptional({
