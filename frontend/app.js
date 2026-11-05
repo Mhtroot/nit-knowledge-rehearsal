@@ -1837,7 +1837,7 @@ document.addEventListener('DOMContentLoaded', () => {
       setLoading(adminLoginBtn, true);
 
       try {
-        let res = await apiFetch('/auth/admin', {
+        let res = await apiFetch('/auth/login/admin', {
           method: 'POST',
           body: JSON.stringify({ username, password })
         });
