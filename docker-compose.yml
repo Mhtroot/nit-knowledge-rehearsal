@@ -9,7 +9,7 @@ services:
       MYSQL_USER: ${DB_USER:-basebot}
       MYSQL_PASSWORD: ${DB_PASSWORD:-root}
     ports:
-      - "${DB_PORT:-3307}:3306"
+      - "127.0.0.1:${DB_PORT:-3307}:3306"
     volumes:
       - db_data:/var/lib/mysql
     healthcheck:
