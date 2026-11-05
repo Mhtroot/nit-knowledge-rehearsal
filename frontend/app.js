@@ -1503,20 +1503,21 @@ document.addEventListener('DOMContentLoaded', () => {
       e.preventDefault();
       clearInlineError(signupErrorBox);
 
-      const fullName = fullNameInput.value.trim();
-      let ssn = toEnglishDigits(ssnInput.value.trim());
-      let phone = toEnglishDigits(phoneInput.value.trim());
+      const fullName = fullNameInput ? fullNameInput.value.trim() : '';
+      let ssn = ssnInput ? toEnglishDigits(ssnInput.value.trim()) : '';
+      let phone = phoneInput ? toEnglishDigits(phoneInput.value.trim()) : '';
 
       // Client-side validations
       if (!fullName) {
         showInlineError(signupErrorBox, signupErrorMsg, 'لطفاً نام و نام خانوادگی خود را وارد نمایید.');
-        fullNameInput.focus();
+        if (fullNameInput) fullNameInput.focus();
         return;
       }
 
-      if (!ssn || !/^\d{10}$/.test(ssn)) {
-        showInlineError(signupErrorBox, signupErrorMsg, 'کد ملی باید یک عدد ۱۰ رقمی باشد.');
-        ssnInput.focus();
+      // SSN is optional, but if entered, must be a valid 10-digit number
+      if (ssn && !/^\d{10}$/.test(ssn)) {
+        showInlineError(signupErrorBox, signupErrorMsg, 'کد ملی در صورت وارد شدن باید یک عدد ۱۰ رقمی باشد.');
+        if (ssnInput) ssnInput.focus();
         return;
       }
 
@@ -1528,7 +1529,7 @@ document.addEventListener('DOMContentLoaded', () => {
       const phoneRegex = /^(\+98|0)9\d{9}$/;
       if (!phoneRegex.test(phone)) {
         showInlineError(signupErrorBox, signupErrorMsg, 'شماره همراه باید معتبر باشد (مانند: ۰۹۱۱xxxxxxx).');
-        phoneInput.focus();
+        if (phoneInput) phoneInput.focus();
         return;
       }
 
@@ -1539,9 +1540,20 @@ document.addEventListener('DOMContentLoaded', () => {
       setLoading(signupBtn, true);
 
       try {
+        const payload = {
+          fullName,
+          phone,
+          childCount,
+          teenageCount,
+          adultCount,
+        };
+        if (ssn) {
+          payload.ssn = ssn;
+        }
+
         const res = await apiFetch('/auth/user', {
           method: 'POST',
-          body: JSON.stringify({ ssn, fullName, phone, childCount, teenageCount, adultCount })
+          body: JSON.stringify(payload)
         });
 
         const data = await res.json().catch(() => ({}));
@@ -1552,7 +1564,7 @@ document.addEventListener('DOMContentLoaded', () => {
           updateAuthState();
           signupForm.reset();
         } else if (res.status === 409) {
-          showInlineError(signupErrorBox, signupErrorMsg, 'این کد ملی یا شماره همراه قبلاً ثبت‌نام شده است.');
+          showInlineError(signupErrorBox, signupErrorMsg, ssn ? 'این کد ملی یا شماره همراه قبلاً ثبت‌نام شده است.' : 'این شماره همراه قبلاً ثبت‌نام شده است.');
         } else {
           const message = Array.isArray(data.message)
             ? data.message.join('، ')
@@ -1571,8 +1583,8 @@ document.addEventListener('DOMContentLoaded', () => {
   if (btnReRegister) {
     btnReRegister.addEventListener('click', () => {
       logout();
-      const ssnEl = document.getElementById('ssn');
-      if (ssnEl) ssnEl.focus();
+      const firstInput = document.getElementById('fullName') || document.getElementById('ssn');
+      if (firstInput) firstInput.focus();
     });
   }
 
