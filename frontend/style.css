@@ -2160,9 +2160,8 @@ button {
 
 .admin-workshop-item {
   display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 1.25rem;
+  flex-direction: column;
+  gap: 0.85rem;
   padding: 1rem 1.25rem;
   background: rgba(6, 8, 13, 0.6);
   border: 1px solid var(--border-subtle);
@@ -2172,6 +2171,14 @@ button {
 
 .admin-workshop-item:hover {
   border-color: rgba(56, 189, 248, 0.3);
+}
+
+.admin-workshop-item-main {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1.25rem;
+  width: 100%;
 }
 
 .admin-workshop-item-right {
@@ -2877,6 +2884,133 @@ button {
   background: rgba(239, 68, 68, 0.25);
   color: #ffffff;
   border-color: var(--danger);
+}
+
+.admin-item-actions {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+  flex-shrink: 0;
+}
+
+.btn-action-edit {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  padding: 0.45rem 0.85rem;
+  background: rgba(56, 189, 248, 0.12);
+  border: 1px solid rgba(56, 189, 248, 0.35);
+  border-radius: var(--radius-sm);
+  color: var(--cyan);
+  font-size: 0.8rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: var(--transition);
+  white-space: nowrap;
+}
+
+.btn-action-edit:hover {
+  background: rgba(56, 189, 248, 0.22);
+  border-color: var(--cyan);
+  color: #ffffff;
+  box-shadow: 0 2px 10px rgba(56, 189, 248, 0.25);
+}
+
+.admin-edit-panel {
+  background: rgba(14, 21, 38, 0.95);
+  border: 1px solid rgba(56, 189, 248, 0.3);
+  border-radius: var(--radius-md);
+  padding: 1.15rem;
+  margin-top: 0.5rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.85rem;
+  box-shadow: 0 6px 24px rgba(0, 0, 0, 0.4);
+}
+
+.admin-edit-panel .form-group {
+  margin-bottom: 0;
+}
+
+.admin-edit-panel .form-label {
+  font-size: 0.82rem;
+  margin-bottom: 0.35rem;
+}
+
+.admin-edit-panel .form-input,
+.admin-edit-panel .form-textarea {
+  font-size: 0.88rem;
+  padding: 0.55rem 0.75rem;
+  background: rgba(6, 8, 13, 0.85);
+  border: 1px solid var(--border-subtle);
+  width: 100%;
+  box-sizing: border-box;
+}
+
+.admin-edit-actions {
+  display: flex;
+  align-items: center;
+  gap: 0.65rem;
+  margin-top: 0.35rem;
+  flex-wrap: wrap;
+}
+
+.btn-save-edit {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.45rem;
+  padding: 0.5rem 1.15rem;
+  background: var(--cyan);
+  color: #06080d;
+  font-weight: 600;
+  font-size: 0.85rem;
+  border: none;
+  border-radius: var(--radius-sm);
+  cursor: pointer;
+  transition: var(--transition);
+}
+
+.btn-save-edit:hover {
+  background: #7dd3fc;
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(56, 189, 248, 0.3);
+}
+
+.btn-cancel-edit {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0.5rem 0.95rem;
+  background: transparent;
+  border: 1px solid var(--border-subtle);
+  color: var(--text-secondary);
+  font-size: 0.85rem;
+  border-radius: var(--radius-sm);
+  cursor: pointer;
+  transition: var(--transition);
+}
+
+.btn-cancel-edit:hover {
+  border-color: rgba(255, 255, 255, 0.25);
+  color: #ffffff;
+}
+
+@media (max-width: 640px) {
+  .admin-workshop-item-main {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 0.85rem;
+  }
+  .admin-news-item-top {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 0.85rem;
+  }
+  .admin-item-actions {
+    justify-content: flex-end;
+  }
 }
 
 /* ==========================================================================
